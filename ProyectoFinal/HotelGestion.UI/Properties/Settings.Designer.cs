@@ -26,8 +26,8 @@ namespace HotelGestion.UI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=DESKTOP-TCE6HOM\\SQLEXPRESS;Initial Catalog=HotelDB;Integrated Securit" +
-            "y=True;TrustServerCertificate=True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=Leonardo27;Initial Catalog=HotelDB;Integrated Security=True;TrustServ" +
+            "erCertificate=True")]
         public string HotelDB {
             get {
                 return ((string)(this["HotelDB"]));

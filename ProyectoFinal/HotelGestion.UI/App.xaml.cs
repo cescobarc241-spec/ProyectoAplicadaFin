@@ -17,12 +17,13 @@ namespace HotelGestion.UI
         {
             base.OnStartup(e);
 
+            string server = Environment.MachineName;
+
             string connectionString =
-                global::HotelGestion.UI.Properties.Settings.Default.HotelDB;
+                $"Data Source={server};Initial Catalog=HotelDB;Integrated Security=True;TrustServerCertificate=True";
 
             ConnectionFactory =
-            new DbConnectionFactory(connectionString);
-            
+                new DbConnectionFactory(connectionString);
         }
     }
 }
