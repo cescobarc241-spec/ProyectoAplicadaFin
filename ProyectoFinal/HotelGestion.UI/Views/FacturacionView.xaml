@@ -11,13 +11,13 @@
             <RowDefinition Height="Auto"/>
 
             <!-- ESPACIO -->
-            <RowDefinition Height="15"/>
+            <RowDefinition Height="10"/>
 
             <!-- CHECK-OUT -->
             <RowDefinition Height="Auto"/>
 
             <!-- ESPACIO -->
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="10"/>
 
             <!-- CONTENIDO -->
             <RowDefinition Height="*"/>
@@ -162,7 +162,7 @@
         <Grid Grid.Row="4">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="1.5*"/>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -279,9 +279,10 @@
                             <ComboBox ItemsSource="{Binding Estancias}"
                                       DisplayMemberPath="EstanciaId"
                                       SelectedValuePath="EstanciaId"
-                                      SelectedValue="{Binding EstanciaId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValue="{Binding EstanciaId}"
+                                      IsEnabled="False"
                                       Height="32"
-                                      Margin="0,0,0,15"/>
+                                      Margin="0,0,0,15"/>   
 
 
                             <!-- NÚMERO -->
@@ -289,7 +290,8 @@
                             <TextBlock Text="Número de factura"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding NumeroFactura, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding NumeroFactura}"
+                                     IsReadOnly="True"
                                      Height="32"
                                      Margin="0,0,0,15"/>
 
@@ -299,9 +301,10 @@
                             <TextBlock Text="Fecha de emisión"
                                        Margin="0,0,0,5"/>
 
-                            <DatePicker SelectedDate="{Binding FechaEmision, Mode=TwoWay}"
-                                        Height="32"
-                                        Margin="0,0,0,15"/>
+                            <DatePicker SelectedDate="{Binding FechaEmision}"
+                                    IsEnabled="False"
+                                    Height="32"
+                                    Margin="0,0,0,15"/>
 
 
                             <!-- SUBTOTAL -->
@@ -309,7 +312,8 @@
                             <TextBlock Text="Subtotal"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding Subtotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Subtotal}"
+                                     IsReadOnly="True"
                                      Height="32"
                                      Margin="0,0,0,15"/>
 
@@ -319,7 +323,8 @@
                             <TextBlock Text="Impuesto"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding Impuesto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Impuesto}"
+                                     IsReadOnly="True"
                                      Height="32"
                                      Margin="0,0,0,15"/>
 
@@ -329,7 +334,8 @@
                             <TextBlock Text="Total"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding Total, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Total}"
+                                     IsReadOnly="True"
                                      Height="32"
                                      Margin="0,0,0,15"/>
 
@@ -339,8 +345,9 @@
                             <TextBlock Text="Método de pago"
                                        Margin="0,0,0,5"/>
 
-                            <ComboBox SelectedValue="{Binding MetodoPago, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <ComboBox SelectedValue="{Binding MetodoPago}"
                                       SelectedValuePath="Tag"
+                                      IsEnabled="False"
                                       Height="32"
                                       Margin="0,0,0,15">
 
@@ -367,8 +374,9 @@
                             <TextBlock Text="Estado"
                                        Margin="0,0,0,5"/>
 
-                            <ComboBox SelectedValue="{Binding Estado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <ComboBox SelectedValue="{Binding Estado}"
                                       SelectedValuePath="Tag"
+                                      IsEnabled="False"
                                       Height="32"
                                       Margin="0,0,0,20">
 
@@ -383,24 +391,10 @@
 
                             <!-- BOTONES -->
 
-                            <Button Content="Nueva factura"
+                            <Button Content="Ver detalle"
                                     Height="38"
                                     Margin="0,0,0,8"
-                                    Command="{Binding NuevoCommand}"/>
-
-                            <Button Content="Guardar"
-                                    Height="38"
-                                    Margin="0,0,0,8"
-                                    Command="{Binding GuardarCommand}"/>
-
-                            <Button Content="Actualizar"
-                                    Height="38"
-                                    Margin="0,0,0,8"
-                                    Command="{Binding ActualizarCommand}"/>
-
-                            <Button Content="Eliminar"
-                                    Height="38"
-                                    Command="{Binding EliminarCommand}"/>
+                                    Command="{Binding VerDetalleCommand}"/>
 
                         </StackPanel>
 
@@ -509,10 +503,9 @@
                             <TextBlock Text="Descripción"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding Descripcion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     Height="55"
-                                     AcceptsReturn="True"
-                                     TextWrapping="Wrap"
+                            <TextBox Text="{Binding Descripcion}"
+                                     IsReadOnly="True"
+                                     Height="32"
                                      Margin="0,0,0,15"/>
 
 
@@ -521,7 +514,8 @@
                             <TextBlock Text="Cantidad"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding Cantidad, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Cantidad}"
+                                     IsReadOnly="True"
                                      Height="32"
                                      Margin="0,0,0,15"/>
 
@@ -531,7 +525,8 @@
                             <TextBlock Text="Precio unitario"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding PrecioUnitario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding PrecioUnitario}"
+                                     IsReadOnly="True"
                                      Height="32"
                                      Margin="0,0,0,15"/>
 
@@ -541,32 +536,10 @@
                             <TextBlock Text="Subtotal"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding SubtotalDetalle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     Height="32"
+                            <TextBox Text="{Binding SubtotalDetalle}"
                                      IsReadOnly="True"
-                                     Margin="0,0,0,20"/>
-
-
-                            <!-- BOTONES -->
-
-                            <Button Content="Nuevo detalle"
-                                    Height="38"
-                                    Margin="0,0,0,8"
-                                    Command="{Binding NuevoDetalleCommand}"/>
-
-                            <Button Content="Guardar"
-                                    Height="38"
-                                    Margin="0,0,0,8"
-                                    Command="{Binding GuardarDetalleCommand}"/>
-
-                            <Button Content="Actualizar"
-                                    Height="38"
-                                    Margin="0,0,0,8"
-                                    Command="{Binding ActualizarDetalleCommand}"/>
-
-                            <Button Content="Eliminar"
-                                    Height="38"
-                                    Command="{Binding EliminarDetalleCommand}"/>
+                                     Height="32"
+                                     Margin="0,0,0,15"/>
 
                         </StackPanel>
 

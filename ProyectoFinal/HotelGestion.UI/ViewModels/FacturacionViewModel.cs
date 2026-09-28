@@ -17,6 +17,8 @@ public class FacturacionViewModel : BaseViewModel
     private readonly IDetalleFacturaService _detalleFacturaService;
     private readonly IEstanciaService _estanciaService;
     private readonly ICheckOutService _checkOutService;
+    private readonly IReservaService _reservaService;
+    private readonly IHabitacionService _habitacionService;
 
     // =========================================================
     // COLECCIONES
@@ -252,21 +254,7 @@ public class FacturacionViewModel : BaseViewModel
 
     public RelayCommand CargarCommand { get; }
 
-    public RelayCommand NuevoCommand { get; }
-
-    public RelayCommand GuardarCommand { get; }
-
-    public RelayCommand ActualizarCommand { get; }
-
-    public RelayCommand EliminarCommand { get; }
-
-    public RelayCommand NuevoDetalleCommand { get; }
-
-    public RelayCommand GuardarDetalleCommand { get; }
-
-    public RelayCommand ActualizarDetalleCommand { get; }
-
-    public RelayCommand EliminarDetalleCommand { get; }
+    public RelayCommand VerDetalleCommand { get; }
 
     public RelayCommand EjecutarCheckOutCommand { get; }
 
@@ -278,12 +266,16 @@ public class FacturacionViewModel : BaseViewModel
         IFacturaService facturaService,
         IDetalleFacturaService detalleFacturaService,
         IEstanciaService estanciaService,
-        ICheckOutService checkOutService)
+        ICheckOutService checkOutService,
+        IReservaService reservaService,
+        IHabitacionService habitacionService)
     {
         _facturaService = facturaService;
         _detalleFacturaService = detalleFacturaService;
         _estanciaService = estanciaService;
         _checkOutService = checkOutService;
+        _reservaService = reservaService;
+        _habitacionService = habitacionService; 
 
         // -----------------------------------------------------
         // COMANDOS DE FACTURA
@@ -292,33 +284,9 @@ public class FacturacionViewModel : BaseViewModel
         CargarCommand =
             new RelayCommand(CargarDatos);
 
-        NuevoCommand =
-            new RelayCommand(NuevoFactura);
-
-        GuardarCommand =
-            new RelayCommand(GuardarFactura);
-
-        ActualizarCommand =
-            new RelayCommand(ActualizarFactura);
-
-        EliminarCommand =
-            new RelayCommand(EliminarFactura);
-
-        // -----------------------------------------------------
-        // COMANDOS DE DETALLE
-        // -----------------------------------------------------
-
-        NuevoDetalleCommand =
-            new RelayCommand(NuevoDetalle);
-
-        GuardarDetalleCommand =
-            new RelayCommand(GuardarDetalle);
-
-        ActualizarDetalleCommand =
-            new RelayCommand(ActualizarDetalle);
-
-        EliminarDetalleCommand =
-            new RelayCommand(EliminarDetalle);
+        
+        VerDetalleCommand =
+            new RelayCommand(VerDetalleFactura);
 
         // -----------------------------------------------------
         // CHECK-OUT
@@ -344,6 +312,115 @@ public class FacturacionViewModel : BaseViewModel
         CargarEstancias();
     }
 
+    // =========================================================
+    // VER DETALLE DE FACTURA
+    // =========================================================
+
+    private void VerDetalleFactura()
+    {
+        if (FacturaSeleccionada == null)
+        {
+            System.Windows.MessageBox.Show(
+                "Seleccione una factura para ver su detalle.",
+                "Facturación",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
+
+            return;
+        }
+
+        try
+        {
+            var estancia = _estanciaService
+                .ObtenerPorId(FacturaSeleccionada.EstanciaId);
+
+            if (estancia == null)
+            {
+                System.Windows.MessageBox.Show(
+                    "No se encontró la estancia asociada a la factura.",
+                    "Facturación",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+
+                return;
+            }
+
+            var reserva = _reservaService
+                .ObtenerPorId(estancia.ReservaId);
+
+            if (reserva == null)
+            {
+                System.Windows.MessageBox.Show(
+                    "No se encontró la reserva asociada a la estancia.",
+                    "Facturación",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+
+                return;
+            }
+
+            var habitacion = _habitacionService
+                .ObtenerPorId(reserva.HabitacionId);
+
+            if (habitacion == null)
+            {
+                System.Windows.MessageBox.Show(
+                    "No se encontró la habitación asociada.",
+                    "Facturación",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+
+                return;
+            }
+
+            // Cargar detalles de la factura seleccionada
+            var detalles = _detalleFacturaService
+                .ObtenerTodos()
+                .Where(d =>
+                    d.FacturaId == FacturaSeleccionada.FacturaId)
+                .ToList();
+
+            string mensaje =
+                $"FACTURA: {FacturaSeleccionada.NumeroFactura}\n" +
+                $"ESTANCIA: {FacturaSeleccionada.EstanciaId}\n" +
+                $"HABITACIÓN: {habitacion.Numero}\n" +
+                $"FECHA: {FacturaSeleccionada.FechaEmision:dd/MM/yyyy HH:mm}\n" +
+                $"MÉTODO DE PAGO: {FacturaSeleccionada.MetodoPago}\n\n" +
+
+                "DETALLE\n" +
+                "----------------------------------------\n";
+
+            foreach (var detalle in detalles)
+            {
+                mensaje +=
+                    $"{detalle.Descripcion}\n" +
+                    $"Cantidad: {detalle.Cantidad}    " +
+                    $"Precio: S/ {detalle.PrecioUnitario:N2}\n" +
+                    $"Subtotal: S/ {detalle.Subtotal:N2}\n\n";
+            }
+
+            mensaje +=
+                "----------------------------------------\n" +
+                $"SUBTOTAL: S/ {FacturaSeleccionada.Subtotal:N2}\n" +
+                $"IGV: S/ {FacturaSeleccionada.Impuesto:N2}\n" +
+                $"TOTAL: S/ {FacturaSeleccionada.Total:N2}";
+
+            System.Windows.MessageBox.Show(
+                mensaje,
+                "Detalle de factura",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                "No se pudo consultar el detalle de la factura.\n\n" +
+                ex.Message,
+                "Error",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error);
+        }
+    }
     private void CargarFacturas()
     {
         Facturas.Clear();
@@ -388,328 +465,7 @@ public class FacturacionViewModel : BaseViewModel
         }
     }
 
-    // =========================================================
-    // NUEVA FACTURA
-    // =========================================================
 
-    private void NuevoFactura()
-    {
-        FacturaSeleccionada = null;
-
-        EstanciaId = 0;
-        NumeroFactura = string.Empty;
-        FechaEmision = DateTime.Now;
-        Subtotal = 0;
-        Impuesto = 0;
-        Total = 0;
-        MetodoPago = "Efectivo";
-        Estado = "Emitida";
-
-        Detalles.Clear();
-    }
-
-    // =========================================================
-    // GUARDAR FACTURA
-    // =========================================================
-
-    private void GuardarFactura()
-    {
-        try
-        {
-            var factura = new FacturaDto
-            {
-                EstanciaId = EstanciaId,
-                NumeroFactura = NumeroFactura,
-                FechaEmision = FechaEmision,
-                Subtotal = Subtotal,
-                Impuesto = Impuesto,
-                Total = Total,
-                MetodoPago = MetodoPago,
-                Estado = Estado
-            };
-
-            int id =
-                _facturaService.Registrar(factura);
-
-            factura.FacturaId = id;
-
-            Facturas.Add(factura);
-
-            System.Windows.MessageBox.Show(
-                "Factura guardada correctamente.",
-                "Facturación",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(
-                "No se pudo guardar la factura.\n\n" +
-                ex.Message,
-                "Error",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
-        }
-    }
-
-    // =========================================================
-    // ACTUALIZAR FACTURA
-    // =========================================================
-
-    private void ActualizarFactura()
-    {
-        try
-        {
-            if (FacturaSeleccionada == null)
-            {
-                System.Windows.MessageBox.Show(
-                    "Seleccione una factura.",
-                    "Facturación",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
-
-                return;
-            }
-
-            FacturaSeleccionada.EstanciaId = EstanciaId;
-            FacturaSeleccionada.NumeroFactura = NumeroFactura;
-            FacturaSeleccionada.FechaEmision = FechaEmision;
-            FacturaSeleccionada.Subtotal = Subtotal;
-            FacturaSeleccionada.Impuesto = Impuesto;
-            FacturaSeleccionada.Total = Total;
-            FacturaSeleccionada.MetodoPago = MetodoPago;
-            FacturaSeleccionada.Estado = Estado;
-
-            _facturaService.Actualizar(
-                FacturaSeleccionada);
-
-            CargarFacturas();
-
-            System.Windows.MessageBox.Show(
-                "Factura actualizada correctamente.",
-                "Facturación",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(
-                "No se pudo actualizar la factura.\n\n" +
-                ex.Message,
-                "Error",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
-        }
-    }
-
-    // =========================================================
-    // ELIMINAR FACTURA
-    // =========================================================
-
-    private void EliminarFactura()
-    {
-        try
-        {
-            if (FacturaSeleccionada == null)
-            {
-                System.Windows.MessageBox.Show(
-                    "Seleccione una factura.",
-                    "Facturación",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
-
-                return;
-            }
-
-            _facturaService.Eliminar(
-                FacturaSeleccionada.FacturaId);
-
-            Facturas.Remove(FacturaSeleccionada);
-
-            Detalles.Clear();
-
-            System.Windows.MessageBox.Show(
-                "Factura eliminada correctamente.",
-                "Facturación",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(
-                "No se pudo eliminar la factura.\n\n" +
-                ex.Message,
-                "Error",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
-        }
-    }
-
-    // =========================================================
-    // NUEVO DETALLE
-    // =========================================================
-
-    private void NuevoDetalle()
-    {
-        DetalleSeleccionado = null;
-
-        DetalleFacturaId = 0;
-
-        if (FacturaSeleccionada != null)
-            FacturaId = FacturaSeleccionada.FacturaId;
-        else
-            FacturaId = 0;
-
-        Descripcion = string.Empty;
-        Cantidad = 1;
-        PrecioUnitario = 0;
-        SubtotalDetalle = 0;
-    }
-
-    // =========================================================
-    // GUARDAR DETALLE
-    // =========================================================
-
-    private void GuardarDetalle()
-    {
-        try
-        {
-            if (FacturaSeleccionada == null)
-            {
-                System.Windows.MessageBox.Show(
-                    "Seleccione una factura.",
-                    "Facturación",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
-
-                return;
-            }
-
-            var detalle = new DetalleFacturaDto
-            {
-                FacturaId =
-                    FacturaSeleccionada.FacturaId,
-
-                Descripcion = Descripcion,
-
-                Cantidad = Cantidad,
-
-                PrecioUnitario = PrecioUnitario,
-
-                Subtotal = SubtotalDetalle
-            };
-
-            int id =
-                _detalleFacturaService.Registrar(detalle);
-
-            detalle.DetalleFacturaId = id;
-
-            Detalles.Add(detalle);
-
-            System.Windows.MessageBox.Show(
-                "Detalle guardado correctamente.",
-                "Facturación",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(
-                "No se pudo guardar el detalle.\n\n" +
-                ex.Message,
-                "Error",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
-        }
-    }
-
-    // =========================================================
-    // ACTUALIZAR DETALLE
-    // =========================================================
-
-    private void ActualizarDetalle()
-    {
-        try
-        {
-            if (DetalleSeleccionado == null)
-            {
-                System.Windows.MessageBox.Show(
-                    "Seleccione un detalle.",
-                    "Facturación",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
-
-                return;
-            }
-
-            DetalleSeleccionado.FacturaId = FacturaId;
-            DetalleSeleccionado.Descripcion = Descripcion;
-            DetalleSeleccionado.Cantidad = Cantidad;
-            DetalleSeleccionado.PrecioUnitario = PrecioUnitario;
-            DetalleSeleccionado.Subtotal = SubtotalDetalle;
-
-            _detalleFacturaService.Actualizar(
-                DetalleSeleccionado);
-
-            CargarDetalles();
-
-            System.Windows.MessageBox.Show(
-                "Detalle actualizado correctamente.",
-                "Facturación",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(
-                "No se pudo actualizar el detalle.\n\n" +
-                ex.Message,
-                "Error",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
-        }
-    }
-
-    // =========================================================
-    // ELIMINAR DETALLE
-    // =========================================================
-
-    private void EliminarDetalle()
-    {
-        try
-        {
-            if (DetalleSeleccionado == null)
-            {
-                System.Windows.MessageBox.Show(
-                    "Seleccione un detalle.",
-                    "Facturación",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
-
-                return;
-            }
-
-            _detalleFacturaService.Eliminar(
-                DetalleSeleccionado.DetalleFacturaId);
-
-            Detalles.Remove(DetalleSeleccionado);
-
-            System.Windows.MessageBox.Show(
-                "Detalle eliminado correctamente.",
-                "Facturación",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Information);
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(
-                "No se pudo eliminar el detalle.\n\n" +
-                ex.Message,
-                "Error",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
-        }
-    }
 
     // =========================================================
     // CHECK-OUT

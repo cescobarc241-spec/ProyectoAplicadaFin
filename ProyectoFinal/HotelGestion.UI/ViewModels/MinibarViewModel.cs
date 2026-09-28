@@ -30,6 +30,13 @@ public class MinibarViewModel : BaseViewModel
     private int _cantidad = 1;
     private decimal _precioUnitario;
     private DateTime _fechaConsumo = DateTime.Now;
+    private bool _puedeEditarConsumo = true;
+
+    public bool PuedeEditarConsumo
+    {
+        get => _puedeEditarConsumo;
+        set => SetProperty(ref _puedeEditarConsumo, value);
+    }
 
     public ObservableCollection<ProductoMinibarDto> Productos { get; }
         = new();
@@ -82,6 +89,17 @@ public class MinibarViewModel : BaseViewModel
                 Cantidad = value.Cantidad;
                 PrecioUnitario = value.PrecioUnitario;
                 FechaConsumo = value.FechaConsumo;
+
+                var estancia = _estanciaService
+                    .ObtenerPorId(value.EstanciaId);
+
+                PuedeEditarConsumo =
+                    estancia != null &&
+                    estancia.Estado == "Activa";
+            }
+            else
+            {
+                PuedeEditarConsumo = true;
             }
         }
     }
@@ -335,6 +353,8 @@ public class MinibarViewModel : BaseViewModel
     {
         ConsumoSeleccionado = null;
 
+        PuedeEditarConsumo = true;
+
         EstanciaId = 0;
         ProductoMinibarId = 0;
         Cantidad = 1;
@@ -454,7 +474,7 @@ public class MinibarViewModel : BaseViewModel
                 MessageBoxImage.Warning);
         }
     }
-   
+
     private void EliminarConsumo()
     {
         if (ConsumoSeleccionado == null)
@@ -464,6 +484,20 @@ public class MinibarViewModel : BaseViewModel
                 "Validación",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
+
+            return;
+        }
+
+        var estancia = _estanciaService
+    .ObtenerPorId(ConsumoSeleccionado.EstanciaId);
+
+        if (estancia == null || estancia.Estado != "Activa")
+        {
+            MessageBox.Show(
+                "La estancia ya ha sido finalizada. No se puede eliminar este consumo.",
+                "Consumo no disponible",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
 
             return;
         }
@@ -517,6 +551,20 @@ public class MinibarViewModel : BaseViewModel
                 "Validación",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
+
+            return;
+        }
+
+        var estancia = _estanciaService
+            .ObtenerPorId(ConsumoSeleccionado.EstanciaId);
+
+        if (estancia == null || estancia.Estado != "Activa")
+        {
+            MessageBox.Show(
+                "La estancia ya ha sido finalizada. No se puede modificar este consumo.",
+                "Consumo no disponible",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
 
             return;
         }
@@ -631,7 +679,6 @@ public class MinibarViewModel : BaseViewModel
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
 
-                    // Restaurar el stock anterior
                     if (productoAnterior != null)
                     {
                         productoAnterior.Stock -= cantidadAnterior;
@@ -678,5 +725,6 @@ public class MinibarViewModel : BaseViewModel
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
+    
     }
 }

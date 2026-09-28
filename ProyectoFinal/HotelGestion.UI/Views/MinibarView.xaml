@@ -303,7 +303,8 @@
                                           DisplayMemberPath="EstanciaId"
                                           SelectedValuePath="EstanciaId"
                                           SelectedValue="{Binding EstanciaId, UpdateSourceTrigger=PropertyChanged}"
-                                          Height="32"/>
+                                          Height="32"
+                                          IsEnabled="{Binding PuedeEditarConsumo}"/>
 
                             </StackPanel>
 
@@ -318,8 +319,8 @@
                                           DisplayMemberPath="Nombre"
                                           SelectedValuePath="ProductoMinibarId"
                                           SelectedValue="{Binding ProductoMinibarId, UpdateSourceTrigger=PropertyChanged}"
-                                          Height="32"/>
-
+                                          Height="32"
+                                          IsEnabled="{Binding PuedeEditarConsumo}"/>
                             </StackPanel>
 
                             <!-- CANTIDAD -->
@@ -330,7 +331,8 @@
                                            Margin="0,0,0,5"/>
 
                                 <TextBox Text="{Binding Cantidad, UpdateSourceTrigger=PropertyChanged}"
-                                         Height="32"/>
+                                         Height="32"
+                                         IsEnabled="{Binding PuedeEditarConsumo}"/>             
 
                             </StackPanel>
 
@@ -342,8 +344,8 @@
                                            Margin="0,0,0,5"/>
 
                                 <TextBox Text="{Binding PrecioUnitario, UpdateSourceTrigger=PropertyChanged}"
-                                         Height="32"/>
-
+                                         Height="32"
+                                         IsEnabled="{Binding PuedeEditarConsumo}"/>         
                             </StackPanel>
 
                             <!-- FECHA -->
@@ -355,8 +357,8 @@
                                            Margin="0,0,0,5"/>
 
                                 <DatePicker SelectedDate="{Binding FechaConsumo}"
-                                            Height="32"/>
-
+                                        Height="32"
+                                        IsEnabled="{Binding PuedeEditarConsumo}"/>
                             </StackPanel>
 
                             <!-- BOTONES -->

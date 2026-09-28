@@ -168,7 +168,9 @@ public class MainWindowViewModel : BaseViewModel
                 _facturaService,
                 _detalleFacturaService,
                 _estanciaService,
-                _checkOutService);
+                _checkOutService,
+                _reservaService,
+                _habitacionService);
 
         VistaActual =
             new FacturacionView
