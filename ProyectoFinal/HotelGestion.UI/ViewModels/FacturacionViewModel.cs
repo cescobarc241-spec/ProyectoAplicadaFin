@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using HotelGestion.Application.DTOs;
+﻿using HotelGestion.Application.DTOs;
 using HotelGestion.Application.Interfaces;
+using HotelGestion.Application.UseCases;
+using System;
+using System.Collections.ObjectModel;
 
 namespace HotelGestion.UI.ViewModels;
 
@@ -19,6 +20,8 @@ public class FacturacionViewModel : BaseViewModel
     private readonly ICheckOutService _checkOutService;
     private readonly IReservaService _reservaService;
     private readonly IHabitacionService _habitacionService;
+
+    private readonly IClienteService _clienteService;
 
     // =========================================================
     // COLECCIONES
@@ -49,6 +52,26 @@ public class FacturacionViewModel : BaseViewModel
             {
                 EstanciaId = _facturaSeleccionada.EstanciaId;
                 NumeroFactura = _facturaSeleccionada.NumeroFactura;
+
+                var estancia = _estanciaService
+                    .ObtenerPorId(_facturaSeleccionada.EstanciaId);
+
+                if (estancia != null)
+                {
+                    var reserva = _reservaService
+                        .ObtenerPorId(estancia.ReservaId);
+
+                    if (reserva != null)
+                    {
+                        var cliente = _clienteService
+                            .ObtenerPorId(reserva.ClienteId);
+
+                        NombreCliente = cliente != null
+                            ? $"{cliente.Nombres} {cliente.Apellidos}"
+                            : string.Empty;
+                    }
+                }
+
                 FechaEmision = _facturaSeleccionada.FechaEmision;
                 Subtotal = _facturaSeleccionada.Subtotal;
                 Impuesto = _facturaSeleccionada.Impuesto;
@@ -58,6 +81,7 @@ public class FacturacionViewModel : BaseViewModel
             }
             else
             {
+                NombreCliente = string.Empty;
                 EstanciaId = 0;
                 NumeroFactura = string.Empty;
                 FechaEmision = DateTime.Now;
@@ -76,7 +100,15 @@ public class FacturacionViewModel : BaseViewModel
     // CAMPOS DE FACTURA
     // =========================================================
 
+    private string _nombreCliente = string.Empty;
+
+    public string NombreCliente
+    {
+        get => _nombreCliente;
+        set => SetProperty(ref _nombreCliente, value);
+    }
     private int _estanciaId;
+
 
     public int EstanciaId
     {
@@ -268,14 +300,16 @@ public class FacturacionViewModel : BaseViewModel
         IEstanciaService estanciaService,
         ICheckOutService checkOutService,
         IReservaService reservaService,
-        IHabitacionService habitacionService)
+        IHabitacionService habitacionService,
+        IClienteService clienteService)
     {
         _facturaService = facturaService;
         _detalleFacturaService = detalleFacturaService;
         _estanciaService = estanciaService;
         _checkOutService = checkOutService;
         _reservaService = reservaService;
-        _habitacionService = habitacionService; 
+        _habitacionService = habitacionService;
+        _clienteService = clienteService;
 
         // -----------------------------------------------------
         // COMANDOS DE FACTURA
@@ -382,6 +416,7 @@ public class FacturacionViewModel : BaseViewModel
 
             string mensaje =
                 $"FACTURA: {FacturaSeleccionada.NumeroFactura}\n" +
+                $"CLIENTE: {NombreCliente}\n" +
                 $"ESTANCIA: {FacturaSeleccionada.EstanciaId}\n" +
                 $"HABITACIÓN: {habitacion.Numero}\n" +
                 $"FECHA: {FacturaSeleccionada.FechaEmision:dd/MM/yyyy HH:mm}\n" +
