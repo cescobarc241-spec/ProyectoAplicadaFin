@@ -504,7 +504,7 @@ public class FacturacionViewModel : BaseViewModel
                 EstanciaId = EstanciaIdCheckOut,
                 MetodoPago = MetodoPagoCheckOut,
                 // SOLO PARA LA PRUEBA DE ROLLBACK
-                ForzarError = true
+                //ForzarError = true
             };
 
             _checkOutService.Ejecutar(checkOut);

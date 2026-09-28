@@ -474,11 +474,11 @@ public class CheckOutRepository : ICheckOutRepository
             // 11.1. PRUEBA DE ROLLBACK
             // =========================================================
             //SOLO PARA LA PRUEBA DE ROLLBACK
-            if (checkOut.ForzarError)
-            {
-                throw new InvalidOperationException(
-                   "Fallo controlado para demostrar Rollback.");
-            }
+            //if (checkOut.ForzarError)
+            //{
+            //    throw new InvalidOperationException(
+            //       "Fallo controlado para demostrar Rollback.");
+            //}
 
 
             // =========================================================

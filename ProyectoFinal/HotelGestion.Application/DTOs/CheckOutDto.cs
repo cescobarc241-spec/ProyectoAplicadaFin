@@ -10,6 +10,6 @@
             public string MetodoPago { get; set; } = string.Empty;
         
             // SOLO PARA LA PRUEBA DE ROLLBACK
-            public bool ForzarError { get; set; }
+            //public bool ForzarError { get; set; }
         }
     }
