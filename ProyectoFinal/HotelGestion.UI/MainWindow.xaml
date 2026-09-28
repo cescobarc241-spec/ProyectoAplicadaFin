@@ -3,195 +3,102 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Hotel Gestión"
         Height="700"
-        Width="1100"
-        WindowStartupLocation="CenterScreen">
+        Width="1200"
+        MinHeight="600"
+        MinWidth="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F6F8">
 
-    <Grid Margin="25">
+    <Grid>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="230"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <!-- TÍTULO -->
-        <StackPanel Grid.Row="0">
-            <TextBlock Text="Gestión de Habitaciones"
-                       FontSize="28"
-                       FontWeight="SemiBold"/>
+        <!-- ===================================================== -->
+        <!-- MENÚ LATERAL -->
+        <!-- ===================================================== -->
 
-            <TextBlock Text="Administración de las habitaciones del hotel"
-                       FontSize="14"
-                       Foreground="Gray"
-                       Margin="0,5,0,0"/>
-        </StackPanel>
+        <Border Grid.Column="0"
+                Background="#1F2937">
 
-        <!-- CONTENIDO -->
-        <Grid Grid.Row="2">
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- TABLA -->
-            <Grid Grid.Column="0">
+            <Grid>
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- BOTÓN ACTUALIZAR -->
+                <!-- ENCABEZADO -->
                 <StackPanel Grid.Row="0"
-                            Orientation="Horizontal"
-                            Margin="0,0,0,10">
+                            Margin="25,30,20,25">
 
-                    <Button Content="Actualizar lista"
-                            Width="130"
-                            Height="35"
-                            Command="{Binding CargarCommand}"/>
+                    <TextBlock Text="HOTEL"
+                               Foreground="White"
+                               FontSize="24"
+                               FontWeight="Bold"/>
+
+                    <TextBlock Text="Sistema de Gestión"
+                               Foreground="#D1D5DB"
+                               FontSize="13"
+                               Margin="0,5,0,0"/>
 
                 </StackPanel>
 
-                <!-- DATAGRID -->
-                <DataGrid Grid.Row="1"
-                          ItemsSource="{Binding Habitaciones}"
-                          SelectedItem="{Binding HabitacionSeleccionada}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                          CanUserAddRows="False"
-                          SelectionMode="Single">
+                <!-- OPCIONES -->
+                <StackPanel Grid.Row="1"
+                            Margin="12,10">
 
-                    <DataGrid.Columns>
+                    <Button Content="Habitaciones"
+                            Command="{Binding MostrarHabitacionesCommand}"
+                            Height="45"
+                            Margin="0,0,0,8"/>
 
-                        <DataGridTextColumn Header="ID"
-                                            Binding="{Binding HabitacionId}"
-                                            Width="55"/>
+                    <Button Content="Tipos de habitación"
+                            Command="{Binding MostrarTiposHabitacionCommand}"
+                            Height="45"
+                            Margin="0,0,0,8"/>
 
-                        <DataGridTextColumn Header="Número"
-                                            Binding="{Binding Numero}"
-                                            Width="80"/>
+                    <Button Content="Reservas"
+                            Command="{Binding MostrarReservasCommand}"
+                            Height="45"
+                            Margin="0,0,0,8"/>
 
-                        <DataGridTextColumn Header="Piso"
-                                            Binding="{Binding Piso}"
-                                            Width="60"/>
+                    <Button Content="Minibar"
+                            Command="{Binding MostrarMinibarCommand}"
+                            Height="45"
+                            Margin="0,0,0,8"/>
 
-                        <DataGridTextColumn Header="Tipo"
-                                            Binding="{Binding TipoHabitacionId}"
-                                            Width="70"/>
+                    <Button Content="Facturación"
+                            Command="{Binding MostrarFacturacionCommand}"
+                            Height="45"/>
 
-                        <DataGridTextColumn Header="Estado"
-                                            Binding="{Binding Estado}"
-                                            Width="120"/>
+                </StackPanel>
 
-                        <DataGridTextColumn Header="Descripción"
-                                            Binding="{Binding Descripcion}"
-                                            Width="*"/>
-
-                    </DataGrid.Columns>
-
-                </DataGrid>
+                <!-- PIE -->
+                <TextBlock Grid.Row="2"
+                           Text="Sistema Hotelero"
+                           Foreground="#9CA3AF"
+                           FontSize="11"
+                           Margin="20,20,20,20"/>
 
             </Grid>
 
-            <!-- FORMULARIO -->
-            <Border Grid.Column="2"
-                    Padding="20"
-                    BorderBrush="LightGray"
-                    BorderThickness="1"
-                    CornerRadius="8">
+        </Border>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <!-- ===================================================== -->
+        <!-- ÁREA PRINCIPAL -->
+        <!-- ===================================================== -->
 
-                    <StackPanel>
+        <Border Grid.Column="1"
+                Background="#F5F6F8"
+                Padding="10">
 
-                        <TextBlock Text="Datos de la habitación"
-                                   FontSize="20"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,20"/>
+            <ContentControl Content="{Binding VistaActual}"/>
 
-                        <!-- NÚMERO -->
-                        <TextBlock Text="Número"
-                                   Margin="0,0,0,5"/>
-
-                        <TextBox Text="{Binding Numero, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="32"
-                                 Margin="0,0,0,15"/>
-
-                        <!-- PISO -->
-                        <TextBlock Text="Piso"
-                                   Margin="0,0,0,5"/>
-
-                        <TextBox Text="{Binding Piso, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="32"
-                                 Margin="0,0,0,15"/>
-
-                        <!-- TIPO -->
-                        <TextBlock Text="ID Tipo de habitación"
-                                   Margin="0,0,0,5"/>
-
-                        <TextBox Text="{Binding TipoHabitacionId, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="32"
-                                 Margin="0,0,0,15"/>
-
-                        <!-- ESTADO -->
-                        <TextBlock Text="Estado"
-                                   Margin="0,0,0,5"/>
-
-                        <ComboBox SelectedValue="{Binding Estado, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" Height="32" Margin="0,0,0,15">
-                        
-                        <ComboBoxItem Content="Disponible" Tag="Disponible"/>
-
-                        <ComboBoxItem Content="Reservada" Tag="Reservada"/>
-
-                        <ComboBoxItem Content="Ocupada" Tag="Ocupada"/>
-
-                        <ComboBoxItem Content="Limpieza" Tag="Limpieza"/>
-
-                        <ComboBoxItem Content="Mantenimiento" Tag="Mantenimiento"/>
-
-                        </ComboBox>
-
-                        <!-- DESCRIPCIÓN -->
-                        <TextBlock Text="Descripción"
-                                   Margin="0,0,0,5"/>
-
-                        <TextBox Text="{Binding Descripcion, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="80"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 VerticalScrollBarVisibility="Auto"
-                                 Margin="0,0,0,20"/>
-
-                        <!-- BOTONES -->
-                        <Button Content="Nueva habitación"
-                                Height="38"
-                                Margin="0,0,0,8"
-                                Command="{Binding NuevoCommand}"/>
-
-                        <Button Content="Guardar"
-                                Height="38"
-                                Margin="0,0,0,8"
-                                Command="{Binding GuardarCommand}"/>
-
-                        <Button Content="Actualizar"
-                                Height="38"
-                                Margin="0,0,0,8"
-                                Command="{Binding ActualizarCommand}"/>
-
-                        <Button Content="Eliminar"
-                                Height="38"
-                                Command="{Binding EliminarCommand}"/>
-
-                    </StackPanel>
-
-                </ScrollViewer>
-
-            </Border>
-
-        </Grid>
+        </Border>
 
     </Grid>
 

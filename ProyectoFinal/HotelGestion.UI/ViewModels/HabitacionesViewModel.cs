@@ -10,6 +10,7 @@ namespace HotelGestion.UI.ViewModels;
 public class HabitacionesViewModel : BaseViewModel
 {
     private readonly IHabitacionService _habitacionService;
+    private readonly ITipoHabitacionService _tipoHabitacionService;
 
     private HabitacionDto? _habitacionSeleccionada;
 
@@ -20,6 +21,9 @@ public class HabitacionesViewModel : BaseViewModel
     private string _descripcion = string.Empty;
 
     public ObservableCollection<HabitacionDto> Habitaciones { get; }
+        = new();
+
+    public ObservableCollection<TipoHabitacionDto> TiposHabitacion { get; }
         = new();
 
     public HabitacionDto? HabitacionSeleccionada
@@ -86,12 +90,14 @@ public class HabitacionesViewModel : BaseViewModel
     public ICommand EliminarCommand { get; }
 
     public HabitacionesViewModel(
-        IHabitacionService habitacionService)
+        IHabitacionService habitacionService,
+        ITipoHabitacionService tipoHabitacionService)
     {
         _habitacionService = habitacionService;
+        _tipoHabitacionService = tipoHabitacionService;
 
         CargarCommand =
-            new RelayCommand(CargarHabitaciones);
+            new RelayCommand(CargarDatos);
 
         NuevoCommand =
             new RelayCommand(Nuevo);
@@ -104,9 +110,30 @@ public class HabitacionesViewModel : BaseViewModel
 
         EliminarCommand =
             new RelayCommand(Eliminar);
+
+        CargarDatos();
     }
 
-    public void CargarHabitaciones()
+    private void CargarDatos()
+    {
+        CargarTiposHabitacion();
+        CargarHabitaciones();
+    }
+
+    private void CargarTiposHabitacion()
+    {
+        TiposHabitacion.Clear();
+
+        var tipos =
+            _tipoHabitacionService.ObtenerTodos();
+
+        foreach (var tipo in tipos)
+        {
+            TiposHabitacion.Add(tipo);
+        }
+    }
+
+    private void CargarHabitaciones()
     {
         Habitaciones.Clear();
 

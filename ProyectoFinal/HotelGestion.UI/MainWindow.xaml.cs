@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HotelGestion.UI.ViewModels;
-
+using HotelGestion.Application.Interfaces;
 namespace HotelGestion.UI;
 
 public partial class MainWindow : Window
@@ -18,13 +18,20 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        var app = (App)System.Windows.Application.Current;
+        var app =
+            (App)System.Windows.Application.Current;
 
-        var viewModel =
-            new HabitacionesViewModel(app.HabitacionService);
-
-        DataContext = viewModel;
-
-        viewModel.CargarHabitaciones();
+        DataContext =
+            new MainWindowViewModel(
+                app.HabitacionService,
+                app.TipoHabitacionService,
+                app.ReservaService,
+                app.ClienteService,
+                app.ProductoMinibarService,
+                app.ConsumoMinibarService,
+                app.EstanciaService,
+                app.FacturaService,
+                app.DetalleFacturaService,
+                app.CheckOutService);
     }
 }

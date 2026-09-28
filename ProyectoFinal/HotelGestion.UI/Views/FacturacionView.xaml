@@ -1,0 +1,391 @@
+﻿<UserControl x:Class="HotelGestion.UI.Views.FacturacionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="750"
+             MinHeight="550">
+
+    <Grid Margin="25">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- TÍTULO -->
+        <StackPanel Grid.Row="0">
+
+            <TextBlock Text="Facturación"
+                       FontSize="28"
+                       FontWeight="SemiBold"/>
+
+            <TextBlock Text="Administración de facturas y detalles de factura"
+                       FontSize="14"
+                       Foreground="Gray"
+                       Margin="0,5,0,0"/>
+
+        </StackPanel>
+
+        <Grid Grid.Row="2"
+              Margin="0,15,0,0">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ================================================= -->
+            <!-- FACTURAS -->
+            <!-- ================================================= -->
+
+            <Grid Grid.Row="0">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- TABLA FACTURAS -->
+                <Border Grid.Column="0"
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="10">
+
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Button Grid.Row="0"
+                                Content="Actualizar lista"
+                                Width="130"
+                                Height="35"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,10"
+                                Command="{Binding CargarCommand}"/>
+
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Facturas}"
+                                  SelectedItem="{Binding FacturaSeleccionada}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  SelectionMode="Single">
+
+                            <DataGrid.Columns>
+
+                                <DataGridTextColumn Header="ID"
+                                                    Binding="{Binding FacturaId}"
+                                                    Width="55"/>
+
+                                <DataGridTextColumn Header="Estancia"
+                                                    Binding="{Binding EstanciaId}"
+                                                    Width="75"/>
+
+                                <DataGridTextColumn Header="N° Factura"
+                                                    Binding="{Binding NumeroFactura}"
+                                                    Width="150"/>
+
+                                <DataGridTextColumn Header="Emisión"
+                                                    Binding="{Binding FechaEmision, StringFormat={}{0:dd/MM/yyyy HH:mm}}"
+                                                    Width="135"/>
+
+                                <DataGridTextColumn Header="Total"
+                                                    Binding="{Binding Total, StringFormat={}{0:F2}}"
+                                                    Width="80"/>
+
+                                <DataGridTextColumn Header="Pago"
+                                                    Binding="{Binding MetodoPago}"
+                                                    Width="100"/>
+
+                                <DataGridTextColumn Header="Estado"
+                                                    Binding="{Binding Estado}"
+                                                    Width="90"/>
+
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+
+                    </Grid>
+
+                </Border>
+
+                <!-- FORMULARIO FACTURA -->
+                <Border Grid.Column="2"
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Datos de la factura"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,20"/>
+
+                            <TextBlock Text="Estancia"
+                                       Margin="0,0,0,5"/>
+
+                            <ComboBox ItemsSource="{Binding Estancias}"
+                                      DisplayMemberPath="EstanciaId"
+                                      SelectedValuePath="EstanciaId"
+                                      SelectedValue="{Binding EstanciaId, UpdateSourceTrigger=PropertyChanged}"
+                                      Height="32"
+                                      Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Número de factura"
+                                       Margin="0,0,0,5"/>
+
+                            <TextBox Text="{Binding NumeroFactura, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="32"
+                                     Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Fecha de emisión"
+                                       Margin="0,0,0,5"/>
+
+                            <DatePicker SelectedDate="{Binding FechaEmision}"
+                                        Height="32"
+                                        Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Subtotal"
+                                       Margin="0,0,0,5"/>
+
+                            <TextBox Text="{Binding Subtotal, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="32"
+                                     Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Impuesto"
+                                       Margin="0,0,0,5"/>
+
+                            <TextBox Text="{Binding Impuesto, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="32"
+                                     Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Total"
+                                       Margin="0,0,0,5"/>
+
+                            <TextBox Text="{Binding Total, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="32"
+                                     Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Método de pago"
+                                       Margin="0,0,0,5"/>
+
+                            <ComboBox SelectedValue="{Binding MetodoPago, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValuePath="Tag"
+                                      Height="32"
+                                      Margin="0,0,0,15">
+
+                                <ComboBoxItem Content="Efectivo"
+                                              Tag="Efectivo"/>
+
+                                <ComboBoxItem Content="Tarjeta"
+                                              Tag="Tarjeta"/>
+
+                                <ComboBoxItem Content="Transferencia"
+                                              Tag="Transferencia"/>
+
+                                <ComboBoxItem Content="Yape"
+                                              Tag="Yape"/>
+
+                                <ComboBoxItem Content="Plin"
+                                              Tag="Plin"/>
+
+                            </ComboBox>
+
+                            <TextBlock Text="Estado"
+                                       Margin="0,0,0,5"/>
+
+                            <ComboBox SelectedValue="{Binding EstadoFactura, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValuePath="Tag"
+                                      Height="32"
+                                      Margin="0,0,0,20">
+
+                                <ComboBoxItem Content="Emitida"
+                                              Tag="Emitida"/>
+
+                                <ComboBoxItem Content="Anulada"
+                                              Tag="Anulada"/>
+
+                            </ComboBox>
+
+                            <Button Content="Nueva factura"
+                                    Height="38"
+                                    Margin="0,0,0,8"
+                                    Command="{Binding NuevaFacturaCommand}"/>
+
+                            <Button Content="Guardar"
+                                    Height="38"
+                                    Margin="0,0,0,8"
+                                    Command="{Binding GuardarFacturaCommand}"/>
+
+                            <Button Content="Actualizar"
+                                    Height="38"
+                                    Margin="0,0,0,8"
+                                    Command="{Binding ActualizarFacturaCommand}"/>
+
+                            <Button Content="Eliminar"
+                                    Height="38"
+                                    Command="{Binding EliminarFacturaCommand}"/>
+
+                        </StackPanel>
+
+                    </ScrollViewer>
+
+                </Border>
+
+            </Grid>
+
+            <!-- ================================================= -->
+            <!-- DETALLES -->
+            <!-- ================================================= -->
+
+            <Grid Grid.Row="2">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- TABLA DETALLES -->
+                <Border Grid.Column="0"
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="10">
+
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                   Text="Detalles de la factura seleccionada"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,10"/>
+
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Detalles}"
+                                  SelectedItem="{Binding DetalleSeleccionado}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  SelectionMode="Single">
+
+                            <DataGrid.Columns>
+
+                                <DataGridTextColumn Header="ID"
+                                                    Binding="{Binding DetalleFacturaId}"
+                                                    Width="55"/>
+
+                                <DataGridTextColumn Header="Descripción"
+                                                    Binding="{Binding Descripcion}"
+                                                    Width="*"/>
+
+                                <DataGridTextColumn Header="Cantidad"
+                                                    Binding="{Binding Cantidad}"
+                                                    Width="75"/>
+
+                                <DataGridTextColumn Header="Precio"
+                                                    Binding="{Binding PrecioUnitario, StringFormat={}{0:F2}}"
+                                                    Width="80"/>
+
+                                <DataGridTextColumn Header="Subtotal"
+                                                    Binding="{Binding Subtotal, StringFormat={}{0:F2}}"
+                                                    Width="85"/>
+
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+
+                    </Grid>
+
+                </Border>
+
+                <!-- FORMULARIO DETALLE -->
+                <Border Grid.Column="2"
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Detalle"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Descripción"
+                                   Margin="0,0,0,5"/>
+
+                        <TextBox Text="{Binding DescripcionDetalle, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="55"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Cantidad"
+                                   Margin="0,0,0,5"/>
+
+                        <TextBox Text="{Binding Cantidad, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Precio unitario"
+                                   Margin="0,0,0,5"/>
+
+                        <TextBox Text="{Binding PrecioUnitario, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Subtotal"
+                                   Margin="0,0,0,5"/>
+
+                        <TextBox Text="{Binding SubtotalDetalle, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 IsReadOnly="True"
+                                 Margin="0,0,0,20"/>
+
+                        <Button Content="Nuevo detalle"
+                                Height="38"
+                                Margin="0,0,0,8"
+                                Command="{Binding NuevoDetalleCommand}"/>
+
+                        <Button Content="Guardar"
+                                Height="38"
+                                Margin="0,0,0,8"
+                                Command="{Binding GuardarDetalleCommand}"/>
+
+                        <Button Content="Actualizar"
+                                Height="38"
+                                Margin="0,0,0,8"
+                                Command="{Binding ActualizarDetalleCommand}"/>
+
+                        <Button Content="Eliminar"
+                                Height="38"
+                                Command="{Binding EliminarDetalleCommand}"/>
+
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+        </Grid>
+
+    </Grid>
+
+</UserControl>
