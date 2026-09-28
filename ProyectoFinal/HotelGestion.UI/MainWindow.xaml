@@ -60,12 +60,18 @@
                             Command="{Binding MostrarTiposHabitacionCommand}"
                             Height="45"
                             Margin="0,0,0,8"/>
-
+                    <Button Content="Clientes"
+                            Command="{Binding MostrarClientesCommand}"
+                            Height="45"
+                            Margin="0,0,0,8"/>
                     <Button Content="Reservas"
                             Command="{Binding MostrarReservasCommand}"
                             Height="45"
                             Margin="0,0,0,8"/>
-
+                    <Button Content="Check-In"
+                            Command="{Binding MostrarCheckInCommand}"
+                            Height="45"
+                            Margin="0,0,0,8"/>
                     <Button Content="Minibar"
                             Command="{Binding MostrarMinibarCommand}"
                             Height="45"

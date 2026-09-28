@@ -25,6 +25,7 @@ public partial class App : System.Windows.Application
     public IFacturaService FacturaService { get; private set; } = null!;
 
     public IDetalleFacturaService DetalleFacturaService { get; private set; } = null!;
+    public ICheckInService CheckInService { get; private set; } = null!;
     public ICheckOutService CheckOutService { get; private set; } = null!;
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -114,6 +115,15 @@ public partial class App : System.Windows.Application
         var checkOutRepository =
              new CheckOutRepository(ConnectionFactory);
 
+        // Repository de checkins
+        var checkInRepository =
+         new CheckInRepository(ConnectionFactory);
+
+        // Service de checkins
+        var checkInService =
+            new CheckInService(checkInRepository);
+
+        // Service de checkouts
         CheckOutService =
             new CheckOutService(checkOutRepository);
     }

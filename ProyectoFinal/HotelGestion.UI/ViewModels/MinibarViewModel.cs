@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
-using HotelGestion.Application.DTOs;
+﻿using HotelGestion.Application.DTOs;
 using HotelGestion.Application.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Text;
+using System.Windows;
+using System.Windows.Input;
+using System.Linq;
 
 namespace HotelGestion.UI.ViewModels;
 
@@ -123,7 +125,21 @@ public class MinibarViewModel : BaseViewModel
     public int ProductoMinibarId
     {
         get => _productoMinibarId;
-        set => SetProperty(ref _productoMinibarId, value);
+
+        set
+        {
+            if (!SetProperty(ref _productoMinibarId, value))
+                return;
+
+            var producto =
+                Productos.FirstOrDefault(
+                    p => p.ProductoMinibarId == value);
+
+            if (producto != null)
+            {
+                PrecioUnitario = producto.Precio;
+            }
+        }
     }
 
     public int Cantidad
@@ -230,7 +246,10 @@ public class MinibarViewModel : BaseViewModel
 
         foreach (var estancia in estancias)
         {
-            Estancias.Add(estancia);
+            if (estancia.Estado == "Activa")
+            {
+                Estancias.Add(estancia);
+            }
         }
     }
 
@@ -326,57 +345,338 @@ public class MinibarViewModel : BaseViewModel
     private void GuardarConsumo()
     {
         if (EstanciaId <= 0)
+        {
+            MessageBox.Show(
+                "Debe seleccionar una estancia.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
             return;
+        }
 
         if (ProductoMinibarId <= 0)
+        {
+            MessageBox.Show(
+                "Debe seleccionar un producto.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
             return;
+        }
 
         if (Cantidad <= 0)
-            return;
-
-        if (PrecioUnitario < 0)
-            return;
-
-        var consumo = new ConsumoMinibarDto
         {
-            EstanciaId = EstanciaId,
-            ProductoMinibarId = ProductoMinibarId,
-            Cantidad = Cantidad,
-            PrecioUnitario = PrecioUnitario,
-            FechaConsumo = FechaConsumo
-        };
+            MessageBox.Show(
+                "La cantidad debe ser mayor que 0.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
 
-        _consumoService.Registrar(consumo);
-
-        CargarConsumos();
-        NuevoConsumo();
-    }
-
-    private void ActualizarConsumo()
-    {
-        if (ConsumoSeleccionado == null)
             return;
+        }
 
-        ConsumoSeleccionado.EstanciaId = EstanciaId;
-        ConsumoSeleccionado.ProductoMinibarId = ProductoMinibarId;
-        ConsumoSeleccionado.Cantidad = Cantidad;
-        ConsumoSeleccionado.PrecioUnitario = PrecioUnitario;
-        ConsumoSeleccionado.FechaConsumo = FechaConsumo;
+        var producto =
+            Productos.FirstOrDefault(
+                p => p.ProductoMinibarId == ProductoMinibarId);
 
-        _consumoService.Actualizar(ConsumoSeleccionado);
+        if (producto == null)
+        {
+            MessageBox.Show(
+                "El producto seleccionado no existe.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
 
-        CargarConsumos();
+            return;
+        }
+
+        if (producto.Estado != "Activo")
+        {
+            MessageBox.Show(
+                "El producto seleccionado está inactivo.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        if (Cantidad > producto.Stock)
+        {
+            MessageBox.Show(
+                $"Stock insuficiente. Disponible: {producto.Stock}.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        try
+        {
+            var consumo = new ConsumoMinibarDto
+            {
+                EstanciaId = EstanciaId,
+                ProductoMinibarId = ProductoMinibarId,
+                Cantidad = Cantidad,
+                PrecioUnitario = producto.Precio,
+                FechaConsumo = FechaConsumo
+            };
+
+            // Registrar el consumo
+            _consumoService.Registrar(consumo);
+
+            // Descontar el stock
+            producto.Stock -= Cantidad;
+
+            _productoService.Actualizar(producto);
+
+            // Actualizar las listas
+            CargarProductos();
+            CargarConsumos();
+
+            NuevoConsumo();
+
+            MessageBox.Show(
+                "Consumo registrado correctamente.",
+                "Minibar",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                ex.Message,
+                "No se pudo registrar el consumo",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
     }
-
+   
     private void EliminarConsumo()
     {
         if (ConsumoSeleccionado == null)
+        {
+            MessageBox.Show(
+                "Seleccione un consumo.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
             return;
+        }
 
-        _consumoService.Eliminar(
-            ConsumoSeleccionado.ConsumoMinibarId);
+        var producto =
+            Productos.FirstOrDefault(
+                p => p.ProductoMinibarId ==
+                     ConsumoSeleccionado.ProductoMinibarId);
 
-        CargarConsumos();
-        NuevoConsumo();
+        int cantidad = ConsumoSeleccionado.Cantidad;
+
+        try
+        {
+            // Eliminar el consumo
+            _consumoService.Eliminar(
+                ConsumoSeleccionado.ConsumoMinibarId);
+
+            // Devolver la cantidad al stock
+            if (producto != null)
+            {
+                producto.Stock += cantidad;
+                _productoService.Actualizar(producto);
+            }
+
+            CargarProductos();
+            CargarConsumos();
+
+            NuevoConsumo();
+
+            MessageBox.Show(
+                "Consumo eliminado correctamente y stock restaurado.",
+                "Minibar",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                ex.Message,
+                "No se pudo eliminar el consumo",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+    }
+    private void ActualizarConsumo()
+    {
+        if (ConsumoSeleccionado == null)
+        {
+            MessageBox.Show(
+                "Seleccione un consumo.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        if (EstanciaId <= 0)
+        {
+            MessageBox.Show(
+                "Debe seleccionar una estancia.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        if (ProductoMinibarId <= 0)
+        {
+            MessageBox.Show(
+                "Debe seleccionar un producto.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        if (Cantidad <= 0)
+        {
+            MessageBox.Show(
+                "La cantidad debe ser mayor que 0.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        var productoNuevo =
+            Productos.FirstOrDefault(
+                p => p.ProductoMinibarId == ProductoMinibarId);
+
+        if (productoNuevo == null)
+        {
+            MessageBox.Show(
+                "El producto seleccionado no existe.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        if (productoNuevo.Estado != "Activo")
+        {
+            MessageBox.Show(
+                "El producto seleccionado está inactivo.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        int productoAnteriorId =
+            ConsumoSeleccionado.ProductoMinibarId;
+
+        int cantidadAnterior =
+            ConsumoSeleccionado.Cantidad;
+
+        var productoAnterior =
+            Productos.FirstOrDefault(
+                p => p.ProductoMinibarId == productoAnteriorId);
+
+        try
+        {
+            if (productoAnteriorId == ProductoMinibarId)
+            {
+                int stockDisponibleReal =
+                    productoNuevo.Stock + cantidadAnterior;
+
+                if (Cantidad > stockDisponibleReal)
+                {
+                    MessageBox.Show(
+                        $"Stock insuficiente. Disponible: {stockDisponibleReal}.",
+                        "Validación",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
+                    return;
+                }
+
+                productoNuevo.Stock =
+                    stockDisponibleReal - Cantidad;
+
+                _productoService.Actualizar(productoNuevo);
+            }
+            else
+            {
+                if (productoAnterior != null)
+                {
+                    productoAnterior.Stock += cantidadAnterior;
+
+                    _productoService.Actualizar(
+                        productoAnterior);
+                }
+
+                if (Cantidad > productoNuevo.Stock)
+                {
+                    MessageBox.Show(
+                        $"Stock insuficiente. Disponible: {productoNuevo.Stock}.",
+                        "Validación",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
+                    // Restaurar el stock anterior
+                    if (productoAnterior != null)
+                    {
+                        productoAnterior.Stock -= cantidadAnterior;
+
+                        _productoService.Actualizar(
+                            productoAnterior);
+                    }
+
+                    return;
+                }
+
+                productoNuevo.Stock -= Cantidad;
+
+                _productoService.Actualizar(
+                    productoNuevo);
+            }
+
+            ConsumoSeleccionado.EstanciaId = EstanciaId;
+            ConsumoSeleccionado.ProductoMinibarId =
+                ProductoMinibarId;
+            ConsumoSeleccionado.Cantidad = Cantidad;
+            ConsumoSeleccionado.PrecioUnitario =
+                productoNuevo.Precio;
+            ConsumoSeleccionado.FechaConsumo =
+                FechaConsumo;
+
+            _consumoService.Actualizar(
+                ConsumoSeleccionado);
+
+            CargarProductos();
+            CargarConsumos();
+
+            MessageBox.Show(
+                "Consumo actualizado correctamente.",
+                "Minibar",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                ex.Message,
+                "No se pudo actualizar el consumo",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
     }
 }

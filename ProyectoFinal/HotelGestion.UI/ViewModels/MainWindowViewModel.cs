@@ -21,6 +21,7 @@ public class MainWindowViewModel : BaseViewModel
     private readonly IFacturaService _facturaService;
     private readonly IDetalleFacturaService _detalleFacturaService;
     private readonly ICheckOutService _checkOutService;
+    private readonly ICheckInService _checkInService;
 
     public object? VistaActual
     {
@@ -38,6 +39,9 @@ public class MainWindowViewModel : BaseViewModel
 
     public ICommand MostrarTiposHabitacionCommand { get; }
 
+    public ICommand MostrarClientesCommand { get; }
+    
+    public ICommand MostrarCheckInCommand { get; }
     public MainWindowViewModel(
         IHabitacionService habitacionService,
         ITipoHabitacionService tipoHabitacionService,
@@ -48,11 +52,13 @@ public class MainWindowViewModel : BaseViewModel
         IEstanciaService estanciaService,
         IFacturaService facturaService,
         IDetalleFacturaService detalleFacturaService,
-        ICheckOutService checkOutService)
+        ICheckOutService checkOutService,
+        ICheckInService checkInService)
     {
         _habitacionService = habitacionService;
         _tipoHabitacionService = tipoHabitacionService;
         _checkOutService = checkOutService;
+        _checkInService = checkInService;
         _reservaService = reservaService;
         _clienteService = clienteService;
         _productoMinibarService = productoMinibarService;
@@ -76,9 +82,40 @@ public class MainWindowViewModel : BaseViewModel
         MostrarTiposHabitacionCommand =
             new RelayCommand(MostrarTiposHabitacion);
 
+        MostrarClientesCommand = 
+            new RelayCommand(MostrarClientes);
+
+        MostrarCheckInCommand = 
+            new RelayCommand(MostrarCheckIn);
+
         MostrarHabitaciones();
     }
+    private void MostrarCheckIn()
+    {
+        var viewModel = new CheckInViewModel(
+            _checkInService,
+            _clienteService,
+            _reservaService,
+            _habitacionService,
+            _tipoHabitacionService);
 
+        VistaActual =
+            new CheckInView
+            {
+                DataContext = viewModel
+            };
+    }
+    private void MostrarClientes()
+    {
+        var viewModel =
+            new ClienteViewModel(_clienteService);
+
+        VistaActual =
+            new ClienteView
+            {
+                DataContext = viewModel
+            };
+    }
     private void MostrarHabitaciones()
     {
         var viewModel =

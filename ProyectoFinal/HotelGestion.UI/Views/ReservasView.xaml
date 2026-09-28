@@ -130,10 +130,21 @@
                                Margin="0,0,0,5"/>
 
                     <ComboBox ItemsSource="{Binding Clientes}"
-                              DisplayMemberPath="Nombres"
-                              SelectedValuePath="ClienteId"
-                              SelectedValue="{Binding ClienteId, UpdateSourceTrigger=PropertyChanged}"
-                              Height="32"/>
+                      SelectedValuePath="ClienteId"
+                      SelectedValue="{Binding ClienteId, UpdateSourceTrigger=PropertyChanged}"
+                      Height="32">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock> 
+                                <Run Text="{Binding Nombres}"/>
+                                <Run Text=" "/>
+                                <Run Text="{Binding Apellidos}"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding NumeroDocumento}"/>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
                 </StackPanel>
 

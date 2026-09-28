@@ -58,6 +58,8 @@ namespace HotelGestion.Application.UseCases
 
         public int Registrar(ReservaDto reserva)
         {
+            ValidarCruceDeFechas(reserva);
+
             var entidad = new Reserva
             {
                 ClienteId = reserva.ClienteId,
@@ -75,6 +77,8 @@ namespace HotelGestion.Application.UseCases
 
         public void Actualizar(ReservaDto reserva)
         {
+            ValidarCruceDeFechas(reserva);
+
             var entidad = new Reserva
             {
                 ReservaId = reserva.ReservaId,
@@ -94,6 +98,39 @@ namespace HotelGestion.Application.UseCases
         public void Eliminar(int reservaId)
         {
             _reservaRepository.Eliminar(reservaId);
+        }
+        private void ValidarCruceDeFechas(ReservaDto reserva)
+        {
+            // Las reservas canceladas o completadas
+            // no bloquean nuevas reservas.
+            if (reserva.Estado == "Cancelada" ||
+                reserva.Estado == "Completada")
+            {
+                return;
+            }
+
+            if (reserva.FechaSalida.Date <= reserva.FechaEntrada.Date)
+            {
+                throw new InvalidOperationException(
+                    "La fecha de salida debe ser posterior a la fecha de entrada.");
+            }
+
+            var reservas = ObtenerTodos();
+
+            bool existeCruce = reservas.Any(r =>
+                r.ReservaId != reserva.ReservaId &&
+                r.HabitacionId == reserva.HabitacionId &&
+                r.Estado != "Cancelada" &&
+                r.Estado != "Completada" &&
+                reserva.FechaEntrada.Date < r.FechaSalida.Date &&
+                reserva.FechaSalida.Date > r.FechaEntrada.Date
+            );
+
+            if (existeCruce)
+            {
+                throw new InvalidOperationException(
+                    "La habitación ya tiene una reserva registrada para esas fechas.");
+            }
         }
     }
 }

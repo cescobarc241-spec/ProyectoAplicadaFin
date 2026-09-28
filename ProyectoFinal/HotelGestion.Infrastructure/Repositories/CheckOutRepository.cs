@@ -468,7 +468,19 @@ public class CheckOutRepository : ICheckOutRepository
 
                 command.ExecuteNonQuery();
             }
-         
+
+
+            // =========================================================
+            // 11.1. PRUEBA DE ROLLBACK
+            // =========================================================
+            // SOLO PARA LA PRUEBA DE ROLLBACK
+            //if (checkOut.ForzarError)
+            //{
+            //    throw new InvalidOperationException(
+            //       "Fallo controlado para demostrar Rollback.");
+            //}
+
+
             // =========================================================
             // 12. CONFIRMAR TODA LA OPERACIÓN
             // =========================================================

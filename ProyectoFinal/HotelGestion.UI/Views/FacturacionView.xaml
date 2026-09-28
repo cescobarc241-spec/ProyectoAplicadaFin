@@ -1,39 +1,172 @@
 ﻿<UserControl x:Class="HotelGestion.UI.Views.FacturacionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             MinWidth="750"
-             MinHeight="550">
+             MinWidth="900"
+             MinHeight="650">
 
     <Grid Margin="25">
 
         <Grid.RowDefinitions>
+            <!-- TÍTULO -->
             <RowDefinition Height="Auto"/>
+
+            <!-- ESPACIO -->
+            <RowDefinition Height="15"/>
+
+            <!-- CHECK-OUT -->
+            <RowDefinition Height="Auto"/>
+
+            <!-- ESPACIO -->
             <RowDefinition Height="20"/>
+
+            <!-- CONTENIDO -->
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+
+        <!-- ===================================================== -->
         <!-- TÍTULO -->
+        <!-- ===================================================== -->
+
         <StackPanel Grid.Row="0">
 
             <TextBlock Text="Facturación"
                        FontSize="28"
                        FontWeight="SemiBold"/>
 
-            <TextBlock Text="Administración de facturas y detalles de factura"
+            <TextBlock Text="Administración de facturas y proceso de Check-Out"
                        FontSize="14"
                        Foreground="Gray"
                        Margin="0,5,0,0"/>
 
         </StackPanel>
 
-        <Grid Grid.Row="2"
-              Margin="0,15,0,0">
+
+        <!-- ===================================================== -->
+        <!-- CHECK-OUT -->
+        <!-- ===================================================== -->
+
+        <Border Grid.Row="2"
+                Background="#F5F7FA"
+                BorderBrush="#D9DEE7"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="18">
+
+            <Grid>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="180"/>
+                </Grid.ColumnDefinitions>
+
+
+                <!-- TÍTULO CHECK-OUT -->
+
+                <StackPanel Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Margin="0,0,15,0">
+
+                    <TextBlock Text="Check-Out"
+                               FontSize="18"
+                               FontWeight="SemiBold"/>
+
+                    <TextBlock Text="Cerrar estancia"
+                               FontSize="12"
+                               Foreground="Gray"
+                               Margin="0,3,0,0"/>
+
+                </StackPanel>
+
+
+                <!-- ESTANCIA -->
+
+                <StackPanel Grid.Column="1">
+
+                    <TextBlock Text="Estancia"
+                               Margin="0,0,0,5"/>
+
+                    <ComboBox ItemsSource="{Binding Estancias}"
+                              DisplayMemberPath="EstanciaId"
+                              SelectedValuePath="EstanciaId"
+                              SelectedValue="{Binding EstanciaIdCheckOut, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Height="34"/>
+
+                </StackPanel>
+
+
+                <!-- MÉTODO DE PAGO -->
+
+                <StackPanel Grid.Column="4">
+
+                    <TextBlock Text="Método de pago"
+                               Margin="0,0,0,5"/>
+
+                    <ComboBox SelectedValue="{Binding MetodoPagoCheckOut, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Tag"
+                              Height="34">
+
+                        <ComboBoxItem Content="Efectivo"
+                                      Tag="Efectivo"/>
+
+                        <ComboBoxItem Content="Tarjeta"
+                                      Tag="Tarjeta"/>
+
+                        <ComboBoxItem Content="Transferencia"
+                                      Tag="Transferencia"/>
+
+                        <ComboBoxItem Content="Yape"
+                                      Tag="Yape"/>
+
+                        <ComboBoxItem Content="Plin"
+                                      Tag="Plin"/>
+
+                    </ComboBox>
+
+                </StackPanel>
+
+
+                <!-- INFORMACIÓN -->
+
+                <TextBlock Grid.Column="6"
+                           Text="El Check-Out liquida el minibar, calcula la estadía, genera la factura y cambia la habitación a Limpieza."
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                           Foreground="Gray"
+                           Margin="0,0,20,0"/>
+
+
+                <!-- BOTÓN -->
+
+                <Button Grid.Column="7"
+                        Content="REALIZAR CHECK-OUT"
+                        Height="42"
+                        FontWeight="SemiBold"
+                        Command="{Binding EjecutarCheckOutCommand}"/>
+
+            </Grid>
+
+        </Border>
+
+
+        <!-- ===================================================== -->
+        <!-- CONTENIDO PRINCIPAL -->
+        <!-- ===================================================== -->
+
+        <Grid Grid.Row="4">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
 
             <!-- ================================================= -->
             <!-- FACTURAS -->
@@ -47,7 +180,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
+
                 <!-- TABLA FACTURAS -->
+
                 <Border Grid.Column="0"
                         BorderBrush="LightGray"
                         BorderThickness="1"
@@ -61,6 +196,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
+
                         <Button Grid.Row="0"
                                 Content="Actualizar lista"
                                 Width="130"
@@ -68,6 +204,7 @@
                                 HorizontalAlignment="Left"
                                 Margin="0,0,0,10"
                                 Command="{Binding CargarCommand}"/>
+
 
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding Facturas}"
@@ -115,7 +252,9 @@
 
                 </Border>
 
+
                 <!-- FORMULARIO FACTURA -->
+
                 <Border Grid.Column="2"
                         BorderBrush="LightGray"
                         BorderThickness="1"
@@ -131,55 +270,76 @@
                                        FontWeight="SemiBold"
                                        Margin="0,0,0,20"/>
 
+
+                            <!-- ESTANCIA -->
+
                             <TextBlock Text="Estancia"
                                        Margin="0,0,0,5"/>
 
                             <ComboBox ItemsSource="{Binding Estancias}"
                                       DisplayMemberPath="EstanciaId"
                                       SelectedValuePath="EstanciaId"
-                                      SelectedValue="{Binding EstanciaId, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValue="{Binding EstanciaId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       Height="32"
                                       Margin="0,0,0,15"/>
+
+
+                            <!-- NÚMERO -->
 
                             <TextBlock Text="Número de factura"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding NumeroFactura, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding NumeroFactura, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Height="32"
                                      Margin="0,0,0,15"/>
+
+
+                            <!-- FECHA -->
 
                             <TextBlock Text="Fecha de emisión"
                                        Margin="0,0,0,5"/>
 
-                            <DatePicker SelectedDate="{Binding FechaEmision}"
+                            <DatePicker SelectedDate="{Binding FechaEmision, Mode=TwoWay}"
                                         Height="32"
                                         Margin="0,0,0,15"/>
+
+
+                            <!-- SUBTOTAL -->
 
                             <TextBlock Text="Subtotal"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding Subtotal, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Subtotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Height="32"
                                      Margin="0,0,0,15"/>
+
+
+                            <!-- IMPUESTO -->
 
                             <TextBlock Text="Impuesto"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding Impuesto, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Impuesto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Height="32"
                                      Margin="0,0,0,15"/>
+
+
+                            <!-- TOTAL -->
 
                             <TextBlock Text="Total"
                                        Margin="0,0,0,5"/>
 
-                            <TextBox Text="{Binding Total, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Total, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Height="32"
                                      Margin="0,0,0,15"/>
+
+
+                            <!-- MÉTODO -->
 
                             <TextBlock Text="Método de pago"
                                        Margin="0,0,0,5"/>
 
-                            <ComboBox SelectedValue="{Binding MetodoPago, UpdateSourceTrigger=PropertyChanged}"
+                            <ComboBox SelectedValue="{Binding MetodoPago, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       SelectedValuePath="Tag"
                                       Height="32"
                                       Margin="0,0,0,15">
@@ -201,10 +361,13 @@
 
                             </ComboBox>
 
+
+                            <!-- ESTADO -->
+
                             <TextBlock Text="Estado"
                                        Margin="0,0,0,5"/>
 
-                            <ComboBox SelectedValue="{Binding EstadoFactura, UpdateSourceTrigger=PropertyChanged}"
+                            <ComboBox SelectedValue="{Binding Estado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       SelectedValuePath="Tag"
                                       Height="32"
                                       Margin="0,0,0,20">
@@ -217,24 +380,27 @@
 
                             </ComboBox>
 
+
+                            <!-- BOTONES -->
+
                             <Button Content="Nueva factura"
                                     Height="38"
                                     Margin="0,0,0,8"
-                                    Command="{Binding NuevaFacturaCommand}"/>
+                                    Command="{Binding NuevoCommand}"/>
 
                             <Button Content="Guardar"
                                     Height="38"
                                     Margin="0,0,0,8"
-                                    Command="{Binding GuardarFacturaCommand}"/>
+                                    Command="{Binding GuardarCommand}"/>
 
                             <Button Content="Actualizar"
                                     Height="38"
                                     Margin="0,0,0,8"
-                                    Command="{Binding ActualizarFacturaCommand}"/>
+                                    Command="{Binding ActualizarCommand}"/>
 
                             <Button Content="Eliminar"
                                     Height="38"
-                                    Command="{Binding EliminarFacturaCommand}"/>
+                                    Command="{Binding EliminarCommand}"/>
 
                         </StackPanel>
 
@@ -243,6 +409,7 @@
                 </Border>
 
             </Grid>
+
 
             <!-- ================================================= -->
             <!-- DETALLES -->
@@ -256,7 +423,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
+
                 <!-- TABLA DETALLES -->
+
                 <Border Grid.Column="0"
                         BorderBrush="LightGray"
                         BorderThickness="1"
@@ -270,11 +439,13 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
+
                         <TextBlock Grid.Row="0"
                                    Text="Detalles de la factura seleccionada"
                                    FontSize="16"
                                    FontWeight="SemiBold"
                                    Margin="0,0,0,10"/>
+
 
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding Detalles}"
@@ -314,71 +485,92 @@
 
                 </Border>
 
+
                 <!-- FORMULARIO DETALLE -->
+
                 <Border Grid.Column="2"
                         BorderBrush="LightGray"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
 
-                    <StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-                        <TextBlock Text="Detalle"
-                                   FontSize="20"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,20"/>
+                        <StackPanel>
 
-                        <TextBlock Text="Descripción"
-                                   Margin="0,0,0,5"/>
+                            <TextBlock Text="Detalle"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,20"/>
 
-                        <TextBox Text="{Binding DescripcionDetalle, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="55"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Cantidad"
-                                   Margin="0,0,0,5"/>
+                            <!-- DESCRIPCIÓN -->
 
-                        <TextBox Text="{Binding Cantidad, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="32"
-                                 Margin="0,0,0,15"/>
+                            <TextBlock Text="Descripción"
+                                       Margin="0,0,0,5"/>
 
-                        <TextBlock Text="Precio unitario"
-                                   Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding Descripcion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="55"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Margin="0,0,0,15"/>
 
-                        <TextBox Text="{Binding PrecioUnitario, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="32"
-                                 Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Subtotal"
-                                   Margin="0,0,0,5"/>
+                            <!-- CANTIDAD -->
 
-                        <TextBox Text="{Binding SubtotalDetalle, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="32"
-                                 IsReadOnly="True"
-                                 Margin="0,0,0,20"/>
+                            <TextBlock Text="Cantidad"
+                                       Margin="0,0,0,5"/>
 
-                        <Button Content="Nuevo detalle"
-                                Height="38"
-                                Margin="0,0,0,8"
-                                Command="{Binding NuevoDetalleCommand}"/>
+                            <TextBox Text="{Binding Cantidad, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="32"
+                                     Margin="0,0,0,15"/>
 
-                        <Button Content="Guardar"
-                                Height="38"
-                                Margin="0,0,0,8"
-                                Command="{Binding GuardarDetalleCommand}"/>
 
-                        <Button Content="Actualizar"
-                                Height="38"
-                                Margin="0,0,0,8"
-                                Command="{Binding ActualizarDetalleCommand}"/>
+                            <!-- PRECIO -->
 
-                        <Button Content="Eliminar"
-                                Height="38"
-                                Command="{Binding EliminarDetalleCommand}"/>
+                            <TextBlock Text="Precio unitario"
+                                       Margin="0,0,0,5"/>
 
-                    </StackPanel>
+                            <TextBox Text="{Binding PrecioUnitario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="32"
+                                     Margin="0,0,0,15"/>
+
+
+                            <!-- SUBTOTAL -->
+
+                            <TextBlock Text="Subtotal"
+                                       Margin="0,0,0,5"/>
+
+                            <TextBox Text="{Binding SubtotalDetalle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="32"
+                                     IsReadOnly="True"
+                                     Margin="0,0,0,20"/>
+
+
+                            <!-- BOTONES -->
+
+                            <Button Content="Nuevo detalle"
+                                    Height="38"
+                                    Margin="0,0,0,8"
+                                    Command="{Binding NuevoDetalleCommand}"/>
+
+                            <Button Content="Guardar"
+                                    Height="38"
+                                    Margin="0,0,0,8"
+                                    Command="{Binding GuardarDetalleCommand}"/>
+
+                            <Button Content="Actualizar"
+                                    Height="38"
+                                    Margin="0,0,0,8"
+                                    Command="{Binding ActualizarDetalleCommand}"/>
+
+                            <Button Content="Eliminar"
+                                    Height="38"
+                                    Command="{Binding EliminarDetalleCommand}"/>
+
+                        </StackPanel>
+
+                    </ScrollViewer>
 
                 </Border>
 

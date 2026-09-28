@@ -7,6 +7,8 @@ namespace HotelGestion.UI.ViewModels;
 
 public class FacturacionViewModel : BaseViewModel
 {
+    
+
     // =========================================================
     // SERVICIOS
     // =========================================================
@@ -35,12 +37,36 @@ public class FacturacionViewModel : BaseViewModel
     public FacturaDto? FacturaSeleccionada
     {
         get => _facturaSeleccionada;
+
         set
         {
-            if (SetProperty(ref _facturaSeleccionada, value))
+            if (!SetProperty(ref _facturaSeleccionada, value))
+                return;
+
+            if (_facturaSeleccionada != null)
             {
-                CargarDetalles();
+                EstanciaId = _facturaSeleccionada.EstanciaId;
+                NumeroFactura = _facturaSeleccionada.NumeroFactura;
+                FechaEmision = _facturaSeleccionada.FechaEmision;
+                Subtotal = _facturaSeleccionada.Subtotal;
+                Impuesto = _facturaSeleccionada.Impuesto;
+                Total = _facturaSeleccionada.Total;
+                MetodoPago = _facturaSeleccionada.MetodoPago;
+                Estado = _facturaSeleccionada.Estado;
             }
+            else
+            {
+                EstanciaId = 0;
+                NumeroFactura = string.Empty;
+                FechaEmision = DateTime.Now;
+                Subtotal = 0;
+                Impuesto = 0;
+                Total = 0;
+                MetodoPago = "Efectivo";
+                Estado = "Emitida";
+            }
+
+            CargarDetalles();
         }
     }
 
@@ -121,7 +147,31 @@ public class FacturacionViewModel : BaseViewModel
     public DetalleFacturaDto? DetalleSeleccionado
     {
         get => _detalleSeleccionado;
-        set => SetProperty(ref _detalleSeleccionado, value);
+
+        set
+        {
+            if (!SetProperty(ref _detalleSeleccionado, value))
+                return;
+
+            if (_detalleSeleccionado != null)
+            {
+                DetalleFacturaId = _detalleSeleccionado.DetalleFacturaId;
+                FacturaId = _detalleSeleccionado.FacturaId;
+                Descripcion = _detalleSeleccionado.Descripcion;
+                Cantidad = _detalleSeleccionado.Cantidad;
+                PrecioUnitario = _detalleSeleccionado.PrecioUnitario;
+                SubtotalDetalle = _detalleSeleccionado.Subtotal;
+            }
+            else
+            {
+                DetalleFacturaId = 0;
+                FacturaId = 0;
+                Descripcion = string.Empty;
+                Cantidad = 1;
+                PrecioUnitario = 0;
+                SubtotalDetalle = 0;
+            }
+        }
     }
 
     // =========================================================
@@ -667,6 +717,7 @@ public class FacturacionViewModel : BaseViewModel
 
     private void EjecutarCheckOut()
     {
+
         try
         {
             if (EstanciaIdCheckOut <= 0)
@@ -695,7 +746,9 @@ public class FacturacionViewModel : BaseViewModel
             var checkOut = new CheckOutDto
             {
                 EstanciaId = EstanciaIdCheckOut,
-                MetodoPago = MetodoPagoCheckOut
+                MetodoPago = MetodoPagoCheckOut,
+                // SOLO PARA LA PRUEBA DE ROLLBACK
+                // ForzarError = true
             };
 
             _checkOutService.Ejecutar(checkOut);

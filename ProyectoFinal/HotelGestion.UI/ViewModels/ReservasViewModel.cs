@@ -1,269 +1,469 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
-using HotelGestion.Application.DTOs;
-using HotelGestion.Application.Interfaces;
+﻿    using HotelGestion.Application.DTOs;
+    using HotelGestion.Application.Interfaces;
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Text;
+using System.Windows;
+    using System.Windows.Input;
 
-namespace HotelGestion.UI.ViewModels;
+    namespace HotelGestion.UI.ViewModels;
 
-public class ReservasViewModel : BaseViewModel
-{
-    private readonly IReservaService _reservaService;
-    private readonly IClienteService _clienteService;
-    private readonly IHabitacionService _habitacionService;
-
-    private ReservaDto? _reservaSeleccionada;
-    private int _clienteId;
-    private int _habitacionId;
-    private DateTime _fechaReserva = DateTime.Now;
-    private DateTime _fechaEntrada = DateTime.Today;
-    private DateTime _fechaSalida = DateTime.Today.AddDays(1);
-    private int _cantidadHuespedes = 1;
-    private string _estado = "Pendiente";
-    private string _observaciones = string.Empty;
-
-    public ObservableCollection<ReservaDto> Reservas { get; }
-        = new();
-
-    public ObservableCollection<ClienteDto> Clientes { get; }
-        = new();
-
-    public ObservableCollection<HabitacionDto> Habitaciones { get; }
-        = new();
-
-    public ReservaDto? ReservaSeleccionada
+    public class ReservasViewModel : BaseViewModel
     {
-        get => _reservaSeleccionada;
-        set
+        private readonly IReservaService _reservaService;
+        private readonly IClienteService _clienteService;
+        private readonly IHabitacionService _habitacionService;
+
+        private ReservaDto? _reservaSeleccionada;
+        private int _clienteId;
+        private int _habitacionId;
+        private DateTime _fechaReserva = DateTime.Now;
+        private DateTime _fechaEntrada = DateTime.Today;
+        private DateTime _fechaSalida = DateTime.Today.AddDays(1);
+        private int _cantidadHuespedes = 1;
+        private string _estado = "Pendiente";
+        private string _observaciones = string.Empty;
+
+        public ObservableCollection<ReservaDto> Reservas { get; }
+            = new();
+
+        public ObservableCollection<ClienteDto> Clientes { get; }
+            = new();
+
+        public ObservableCollection<HabitacionDto> Habitaciones { get; }
+            = new();
+
+        public ReservaDto? ReservaSeleccionada
         {
-            if (!SetProperty(
-                    ref _reservaSeleccionada,
-                    value))
+            get => _reservaSeleccionada;
+            set
             {
-                return;
+                if (!SetProperty(
+                        ref _reservaSeleccionada,
+                        value))
+                {
+                    return;
+                }
+
+                if (value != null)
+                {
+                    ClienteId = value.ClienteId;
+                    HabitacionId = value.HabitacionId;
+                    FechaReserva = value.FechaReserva;
+                    FechaEntrada = value.FechaEntrada;
+                    FechaSalida = value.FechaSalida;
+                    CantidadHuespedes = value.CantidadHuespedes;
+                    Estado = value.Estado;
+                    Observaciones = value.Observaciones ?? string.Empty;
+                }
+            }
+        }
+
+        public int ClienteId
+        {
+            get => _clienteId;
+            set => SetProperty(ref _clienteId, value);
+        }
+
+        public int HabitacionId
+        {
+            get => _habitacionId;
+            set => SetProperty(ref _habitacionId, value);
+        }
+
+        public DateTime FechaReserva
+        {
+            get => _fechaReserva;
+            set => SetProperty(ref _fechaReserva, value);
+        }
+
+        public DateTime FechaEntrada
+        {
+            get => _fechaEntrada;
+            set => SetProperty(ref _fechaEntrada, value);
+        }
+
+        public DateTime FechaSalida
+        {
+            get => _fechaSalida;
+            set => SetProperty(ref _fechaSalida, value);
+        }
+
+        public int CantidadHuespedes
+        {
+            get => _cantidadHuespedes;
+            set => SetProperty(ref _cantidadHuespedes, value);
+        }
+
+        public string Estado
+        {
+            get => _estado;
+            set => SetProperty(ref _estado, value);
+        }
+
+        public string Observaciones
+        {
+            get => _observaciones;
+            set => SetProperty(ref _observaciones, value);
+        }
+
+        public ICommand CargarCommand { get; }
+
+        public ICommand NuevoCommand { get; }
+
+        public ICommand GuardarCommand { get; }
+
+        public ICommand ActualizarCommand { get; }
+
+        public ICommand EliminarCommand { get; }
+
+        public ReservasViewModel(
+            IReservaService reservaService,
+            IClienteService clienteService,
+            IHabitacionService habitacionService)
+        {
+            _reservaService = reservaService;
+            _clienteService = clienteService;
+            _habitacionService = habitacionService;
+
+            CargarCommand =
+                new RelayCommand(CargarDatos);
+
+            NuevoCommand =
+                new RelayCommand(Nuevo);
+
+            GuardarCommand =
+                new RelayCommand(Guardar);
+
+            ActualizarCommand =
+                new RelayCommand(Actualizar);
+
+            EliminarCommand =
+                new RelayCommand(Eliminar);
+
+            CargarDatos();
+        }
+
+        private void CargarDatos()
+        {
+            CargarClientes();
+            CargarHabitaciones();
+            CargarReservas();
+        }
+
+        private void CargarClientes()
+        {
+            Clientes.Clear();
+
+            var clientes =
+                _clienteService.ObtenerTodos();
+
+            foreach (var cliente in clientes)
+            {
+                Clientes.Add(cliente);
+            }
+        }
+
+        private void CargarHabitaciones()
+        {
+            Habitaciones.Clear();
+
+            var habitaciones =
+                _habitacionService.ObtenerTodos();
+
+            foreach (var habitacion in habitaciones)
+            {
+                if (habitacion.Estado == "Disponible")
+                {
+                    Habitaciones.Add(habitacion);
+                }
+            }
+        }
+        private void CargarReservas()
+            {
+                Reservas.Clear();
+
+                var reservas =
+                    _reservaService.ObtenerTodos();
+
+                foreach (var reserva in reservas)
+                {
+                    Reservas.Add(reserva);
+                }
             }
 
-            if (value != null)
+            private void Nuevo()
             {
-                ClienteId = value.ClienteId;
-                HabitacionId = value.HabitacionId;
-                FechaReserva = value.FechaReserva;
-                FechaEntrada = value.FechaEntrada;
-                FechaSalida = value.FechaSalida;
-                CantidadHuespedes = value.CantidadHuespedes;
-                Estado = value.Estado;
-                Observaciones = value.Observaciones ?? string.Empty;
+                ReservaSeleccionada = null;
+
+                ClienteId = 0;
+                HabitacionId = 0;
+                FechaReserva = DateTime.Now;
+                FechaEntrada = DateTime.Today;
+                FechaSalida = DateTime.Today.AddDays(1);
+                CantidadHuespedes = 1;
+                Estado = "Pendiente";
+                Observaciones = string.Empty;
             }
-        }
-    }
-
-    public int ClienteId
-    {
-        get => _clienteId;
-        set => SetProperty(ref _clienteId, value);
-    }
-
-    public int HabitacionId
-    {
-        get => _habitacionId;
-        set => SetProperty(ref _habitacionId, value);
-    }
-
-    public DateTime FechaReserva
-    {
-        get => _fechaReserva;
-        set => SetProperty(ref _fechaReserva, value);
-    }
-
-    public DateTime FechaEntrada
-    {
-        get => _fechaEntrada;
-        set => SetProperty(ref _fechaEntrada, value);
-    }
-
-    public DateTime FechaSalida
-    {
-        get => _fechaSalida;
-        set => SetProperty(ref _fechaSalida, value);
-    }
-
-    public int CantidadHuespedes
-    {
-        get => _cantidadHuespedes;
-        set => SetProperty(ref _cantidadHuespedes, value);
-    }
-
-    public string Estado
-    {
-        get => _estado;
-        set => SetProperty(ref _estado, value);
-    }
-
-    public string Observaciones
-    {
-        get => _observaciones;
-        set => SetProperty(ref _observaciones, value);
-    }
-
-    public ICommand CargarCommand { get; }
-
-    public ICommand NuevoCommand { get; }
-
-    public ICommand GuardarCommand { get; }
-
-    public ICommand ActualizarCommand { get; }
-
-    public ICommand EliminarCommand { get; }
-
-    public ReservasViewModel(
-        IReservaService reservaService,
-        IClienteService clienteService,
-        IHabitacionService habitacionService)
-    {
-        _reservaService = reservaService;
-        _clienteService = clienteService;
-        _habitacionService = habitacionService;
-
-        CargarCommand =
-            new RelayCommand(CargarDatos);
-
-        NuevoCommand =
-            new RelayCommand(Nuevo);
-
-        GuardarCommand =
-            new RelayCommand(Guardar);
-
-        ActualizarCommand =
-            new RelayCommand(Actualizar);
-
-        EliminarCommand =
-            new RelayCommand(Eliminar);
-
-        CargarDatos();
-    }
-
-    private void CargarDatos()
-    {
-        CargarClientes();
-        CargarHabitaciones();
-        CargarReservas();
-    }
-
-    private void CargarClientes()
-    {
-        Clientes.Clear();
-
-        var clientes =
-            _clienteService.ObtenerTodos();
-
-        foreach (var cliente in clientes)
-        {
-            Clientes.Add(cliente);
-        }
-    }
-
-    private void CargarHabitaciones()
-    {
-        Habitaciones.Clear();
-
-        var habitaciones =
-            _habitacionService.ObtenerTodos();
-
-        foreach (var habitacion in habitaciones)
-        {
-            Habitaciones.Add(habitacion);
-        }
-    }
-
-    private void CargarReservas()
-    {
-        Reservas.Clear();
-
-        var reservas =
-            _reservaService.ObtenerTodos();
-
-        foreach (var reserva in reservas)
-        {
-            Reservas.Add(reserva);
-        }
-    }
-
-    private void Nuevo()
-    {
-        ReservaSeleccionada = null;
-
-        ClienteId = 0;
-        HabitacionId = 0;
-        FechaReserva = DateTime.Now;
-        FechaEntrada = DateTime.Today;
-        FechaSalida = DateTime.Today.AddDays(1);
-        CantidadHuespedes = 1;
-        Estado = "Pendiente";
-        Observaciones = string.Empty;
-    }
 
     private void Guardar()
     {
         if (ClienteId <= 0)
+        {
+            MessageBox.Show(
+                "Debe seleccionar un cliente.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
             return;
+        }
 
         if (HabitacionId <= 0)
-            return;
+        {
+            MessageBox.Show(
+                "Debe seleccionar una habitación.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
 
-        if (FechaSalida <= FechaEntrada)
             return;
+        }
+
+        if (FechaEntrada.Date < DateTime.Today)
+        {
+            MessageBox.Show(
+                "La fecha de entrada no puede ser anterior a hoy.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        if (FechaSalida.Date <= FechaEntrada.Date)
+        {
+            MessageBox.Show(
+                "La fecha de salida debe ser posterior a la fecha de entrada.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
 
         if (CantidadHuespedes <= 0)
-            return;
-
-        var reserva = new ReservaDto
         {
-            ClienteId = ClienteId,
-            HabitacionId = HabitacionId,
-            FechaReserva = FechaReserva,
-            FechaEntrada = FechaEntrada,
-            FechaSalida = FechaSalida,
-            CantidadHuespedes = CantidadHuespedes,
-            Estado = Estado,
-            Observaciones = Observaciones
-        };
+            MessageBox.Show(
+                "La cantidad de huéspedes debe ser mayor que 0.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
 
-        _reservaService.Registrar(reserva);
+            return;
+        }
 
-        CargarReservas();
-        Nuevo();
+        try
+        {
+            var reserva = new ReservaDto
+            {
+                ClienteId = ClienteId,
+                HabitacionId = HabitacionId,
+                FechaReserva = FechaReserva,
+                FechaEntrada = FechaEntrada,
+                FechaSalida = FechaSalida,
+                CantidadHuespedes = CantidadHuespedes,
+                Estado = Estado,
+                Observaciones = string.IsNullOrWhiteSpace(Observaciones)
+                    ? null
+                    : Observaciones
+            };
+
+            _reservaService.Registrar(reserva);
+
+            var habitacion =
+                _habitacionService.ObtenerPorId(HabitacionId);
+
+            if (habitacion != null)
+            {
+                habitacion.Estado = "Reservada";
+                _habitacionService.Actualizar(habitacion);
+            }
+
+            CargarReservas();
+            CargarHabitaciones();
+            Nuevo();
+
+            MessageBox.Show(
+                "Reserva registrada correctamente.",
+                "Reservas",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                ex.Message,
+                "No se pudo registrar la reserva",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
     }
 
     private void Actualizar()
     {
         if (ReservaSeleccionada == null)
+        {
+            MessageBox.Show(
+                "Seleccione una reserva.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
             return;
+        }
 
-        ReservaSeleccionada.ClienteId = ClienteId;
-        ReservaSeleccionada.HabitacionId = HabitacionId;
-        ReservaSeleccionada.FechaReserva = FechaReserva;
-        ReservaSeleccionada.FechaEntrada = FechaEntrada;
-        ReservaSeleccionada.FechaSalida = FechaSalida;
-        ReservaSeleccionada.CantidadHuespedes = CantidadHuespedes;
-        ReservaSeleccionada.Estado = Estado;
-        ReservaSeleccionada.Observaciones = Observaciones;
+        if (ClienteId <= 0)
+        {
+            MessageBox.Show(
+                "Debe seleccionar un cliente.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
 
-        _reservaService.Actualizar(ReservaSeleccionada);
+            return;
+        }
 
-        CargarReservas();
+        if (HabitacionId <= 0)
+        {
+            MessageBox.Show(
+                "Debe seleccionar una habitación.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        if (FechaSalida.Date <= FechaEntrada.Date)
+        {
+            MessageBox.Show(
+                "La fecha de salida debe ser posterior a la fecha de entrada.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        if (CantidadHuespedes <= 0)
+        {
+            MessageBox.Show(
+                "La cantidad de huéspedes debe ser mayor que 0.",
+                "Validación",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        try
+        {
+            int habitacionAnteriorId =
+                ReservaSeleccionada.HabitacionId;
+
+            ReservaSeleccionada.ClienteId = ClienteId;
+            ReservaSeleccionada.HabitacionId = HabitacionId;
+            ReservaSeleccionada.FechaReserva = FechaReserva;
+            ReservaSeleccionada.FechaEntrada = FechaEntrada;
+            ReservaSeleccionada.FechaSalida = FechaSalida;
+            ReservaSeleccionada.CantidadHuespedes = CantidadHuespedes;
+            ReservaSeleccionada.Estado = Estado;
+            ReservaSeleccionada.Observaciones =
+                string.IsNullOrWhiteSpace(Observaciones)
+                    ? null
+                    : Observaciones;
+
+            _reservaService.Actualizar(ReservaSeleccionada);
+
+            if (habitacionAnteriorId != HabitacionId)
+            {
+                var habitacionAnterior =
+                    _habitacionService.ObtenerPorId(habitacionAnteriorId);
+
+                if (habitacionAnterior != null &&
+                    habitacionAnterior.Estado == "Reservada")
+                {
+                    habitacionAnterior.Estado = "Disponible";
+                    _habitacionService.Actualizar(habitacionAnterior);
+                }
+
+                var nuevaHabitacion =
+                    _habitacionService.ObtenerPorId(HabitacionId);
+
+                if (nuevaHabitacion != null)
+                {
+                    nuevaHabitacion.Estado = "Reservada";
+                    _habitacionService.Actualizar(nuevaHabitacion);
+                }
+            }
+
+            if (Estado == "Cancelada")
+            {
+                var habitacion =
+                    _habitacionService.ObtenerPorId(HabitacionId);
+
+                if (habitacion != null &&
+                    habitacion.Estado == "Reservada")
+                {
+                    habitacion.Estado = "Disponible";
+                    _habitacionService.Actualizar(habitacion);
+                }
+            }
+
+            CargarReservas();
+            CargarHabitaciones();
+
+            MessageBox.Show(
+                "Reserva actualizada correctamente.",
+                "Reservas",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                ex.Message,
+                "No se pudo actualizar la reserva",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
     }
-
     private void Eliminar()
-    {
-        if (ReservaSeleccionada == null)
-            return;
+        {
+            if (ReservaSeleccionada == null)
+                return;
 
-        _reservaService.Eliminar(
-            ReservaSeleccionada.ReservaId);
+            int habitacionId = ReservaSeleccionada.HabitacionId;
 
-        CargarReservas();
-        Nuevo();
-    }
-}
+            // Primero eliminamos la reserva
+            _reservaService.Eliminar(
+                ReservaSeleccionada.ReservaId);
+
+            // Después liberamos la habitación
+            var habitacion =
+                _habitacionService.ObtenerPorId(habitacionId);
+
+            if (habitacion != null &&
+                habitacion.Estado == "Reservada")
+            {
+                habitacion.Estado = "Disponible";
+                _habitacionService.Actualizar(habitacion);
+            }
+
+            CargarReservas();
+            CargarHabitaciones();
+            Nuevo();
+        }
+    }   

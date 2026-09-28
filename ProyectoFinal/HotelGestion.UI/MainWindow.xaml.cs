@@ -32,6 +32,7 @@ public partial class MainWindow : Window
                 app.EstanciaService,
                 app.FacturaService,
                 app.DetalleFacturaService,
-                app.CheckOutService);
+                app.CheckOutService,
+                app.CheckInService);
     }
 }
