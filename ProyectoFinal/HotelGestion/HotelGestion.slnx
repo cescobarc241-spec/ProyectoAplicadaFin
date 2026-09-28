@@ -3,5 +3,4 @@
   <Project Path="../HotelGestion.Domain/HotelGestion.Domain.csproj" />
   <Project Path="../HotelGestion.Infrastructure/HotelGestion.Infrastructure.csproj" Id="1db12e23-3877-40ef-a397-7315b9eeb9c5" />
   <Project Path="../HotelGestion.UI/HotelGestion.UI.csproj" Id="a6302e96-bc81-4bed-b115-7b8a8d44bad8" />
-  <Project Path="HotelGestion.csproj" />
 </Solution>
