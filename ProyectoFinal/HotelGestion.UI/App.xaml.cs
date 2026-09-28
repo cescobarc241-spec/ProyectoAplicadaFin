@@ -120,7 +120,7 @@ public partial class App : System.Windows.Application
          new CheckInRepository(ConnectionFactory);
 
         // Service de checkins
-        var checkInService =
+        CheckInService =
             new CheckInService(checkInRepository);
 
         // Service de checkouts

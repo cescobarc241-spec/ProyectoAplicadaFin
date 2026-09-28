@@ -136,7 +136,8 @@ public class MainWindowViewModel : BaseViewModel
             new ReservasViewModel(
                 _reservaService,
                 _clienteService,
-                _habitacionService);
+                _habitacionService,
+                _tipoHabitacionService);
 
         VistaActual =
             new ReservasView

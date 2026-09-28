@@ -64,18 +64,20 @@ public class CheckInViewModel : BaseViewModel
                 Observaciones = value.Observaciones;
 
                 CargarHabitaciones();
-
-                HabitacionSeleccionada = Habitaciones
-                    .FirstOrDefault(h => h.HabitacionId == value.HabitacionId);
+            }
+            else
+            {
+                HabitacionSeleccionada = null;
+                CargarHabitaciones();
             }
         }
     }
-
     // =========================================================
     // DATOS DEL CHECK-IN
     // =========================================================
 
     private bool _conReserva = true;
+    public bool PuedeSeleccionarHabitacion => !ConReserva;
 
     public bool ConReserva
     {
@@ -85,6 +87,7 @@ public class CheckInViewModel : BaseViewModel
         {
             if (!SetProperty(ref _conReserva, value))
                 return;
+            OnPropertyChanged(nameof(PuedeSeleccionarHabitacion));
 
             if (value)
             {
@@ -175,11 +178,11 @@ public class CheckInViewModel : BaseViewModel
     // =========================================================
 
     public CheckInViewModel(
-        ICheckInService checkInService,
-        IClienteService clienteService,
-        IReservaService reservaService,
-        IHabitacionService habitacionService,
-        ITipoHabitacionService tipoHabitacionService)
+    ICheckInService checkInService,
+    IClienteService clienteService,
+    IReservaService reservaService,
+    IHabitacionService habitacionService,
+    ITipoHabitacionService tipoHabitacionService)
     {
         _checkInService = checkInService;
         _clienteService = clienteService;
@@ -187,11 +190,12 @@ public class CheckInViewModel : BaseViewModel
         _habitacionService = habitacionService;
         _tipoHabitacionService = tipoHabitacionService;
 
-        EjecutarCheckInCommand =
-            new RelayCommand(EjecutarCheckIn);
+        Clientes = new ObservableCollection<ClienteDto>();
+        Reservas = new ObservableCollection<ReservaDto>();
+        Habitaciones = new ObservableCollection<HabitacionMostrar>();
 
-        CargarCommand =
-            new RelayCommand(CargarDatos);
+        CargarCommand = new RelayCommand(CargarDatos);
+        EjecutarCheckInCommand = new RelayCommand(EjecutarCheckIn);
 
         CargarDatos();
     }
@@ -242,16 +246,51 @@ public class CheckInViewModel : BaseViewModel
     {
         Habitaciones.Clear();
 
-        var habitaciones = _habitacionService
+        var todasLasHabitaciones = _habitacionService
             .ObtenerTodos()
-            .Where(h => h.Estado == "Disponible")
             .ToList();
 
         var tipos = _tipoHabitacionService
             .ObtenerTodos()
             .ToList();
 
-        foreach (var habitacion in habitaciones)
+        // ============================================
+        // SI HAY UNA RESERVA SELECCIONADA
+        // ============================================
+        if (ReservaSeleccionada != null)
+        {
+            var habitacionReservada = todasLasHabitaciones
+                .FirstOrDefault(h =>
+                    h.HabitacionId == ReservaSeleccionada.HabitacionId);
+
+            if (habitacionReservada != null)
+            {
+                var tipo = tipos.FirstOrDefault(
+                    t => t.TipoHabitacionId ==
+                         habitacionReservada.TipoHabitacionId);
+
+                Habitaciones.Add(new HabitacionMostrar
+                {
+                    HabitacionId = habitacionReservada.HabitacionId,
+                    Numero = habitacionReservada.Numero,
+                    Tipo = tipo?.Nombre ?? "Sin tipo"
+                });
+
+                // Seleccionar automáticamente
+                HabitacionSeleccionada = Habitaciones.First();
+            }
+
+            return;
+        }
+
+        // ============================================
+        // SIN RESERVA
+        // ============================================
+        var habitacionesDisponibles = todasLasHabitaciones
+            .Where(h => h.Estado == "Disponible")
+            .ToList();
+
+        foreach (var habitacion in habitacionesDisponibles)
         {
             var tipo = tipos.FirstOrDefault(
                 t => t.TipoHabitacionId == habitacion.TipoHabitacionId);
@@ -363,6 +402,7 @@ public class CheckInViewModel : BaseViewModel
                 MessageBoxImage.Error);
         }
     }
+
 
     // =========================================================
     // NUEVO CHECK-IN

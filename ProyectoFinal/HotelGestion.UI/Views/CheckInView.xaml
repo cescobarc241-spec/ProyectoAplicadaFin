@@ -281,8 +281,9 @@
 
                         <ComboBox ItemsSource="{Binding Habitaciones}"
                                   DisplayMemberPath="NombreCompleto"
-                                  SelectedItem="{Binding HabitacionSeleccionada, Mode=TwoWay}"
+                                  SelectedItem="{Binding HabitacionSeleccionada, UpdateSourceTrigger=PropertyChanged}"
                                   Height="32"
+                                  IsEnabled="{Binding PuedeSeleccionarHabitacion}"
                                   Margin="0,0,0,15">
 
                             <ComboBox.Style>

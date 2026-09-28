@@ -156,10 +156,10 @@
                                Margin="0,0,0,5"/>
 
                     <ComboBox ItemsSource="{Binding Habitaciones}"
-                              DisplayMemberPath="Numero"
-                              SelectedValuePath="HabitacionId"
-                              SelectedValue="{Binding HabitacionId, UpdateSourceTrigger=PropertyChanged}"
-                              Height="32"/>
+                          DisplayMemberPath="NombreCompleto"
+                          SelectedValuePath="HabitacionId"
+                          SelectedValue="{Binding HabitacionId, UpdateSourceTrigger=PropertyChanged}"
+                          Height="32"/> 
 
                 </StackPanel>
 
